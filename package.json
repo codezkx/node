@@ -1,0 +1,23 @@
+{
+  "name": "node-base",
+  "version": "1.0.0",
+  "description": "node 基础学习",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./day01/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codezkx/node.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "晸",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codezkx/node/issues"
+  },
+  "homepage": "https://github.com/codezkx/node#readme"
+}
