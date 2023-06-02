@@ -2358,6 +2358,9 @@ abcde
 **语法**
 
 将 Node Buffer 转换为 JSON 对象的函数语法格式如下：
+  返回 buf 的 JSON 表示。 JSON.stringify() 在字符串化 Buffer 实例时隐式调用此函数。
+
+  Buffer.from() 接受从此方法返回的格式的对象。 特别是，Buffer.from(buf.toJSON()) 的工作方式类似于 Buffer.from(buf)。
 
 ```
 buf.toJSON()
@@ -2539,28 +2542,52 @@ abRUNOOBijkl
 Node 缓冲区裁剪语法如下所示：
 
 ```
-buf.slice([start[, end]])
+buf.subarray([start[, end]])
 
 ```
-
 **参数**
 
 参数描述如下：
+  start <integer> 新的 Buffer 将开始的位置。 默认值: 0。
+  end <integer> 新的 Buffer 将结束的位置（不包括在内）。 默认值: buf.length。
+  返回： <Buffer>
 
-- **start** - 数字, 可选, 默认: 0
-- **end** - 数字, 可选, 默认: buffer.length
 
 **返回值**
+  返回一个新的缓冲区，它和旧缓冲区指向同一块内存，但是从索引 start 到 end 的位置剪切。
+**用法**
+返回新的 Buffer，其引用与原始缓冲区相同的内存，但由 start 和 end 索引进行偏移和裁剪。
 
-返回一个新的缓冲区，它和旧缓冲区指向同一块内存，但是从索引 start 到 end 的位置剪切。
+指定 end 大于 buf.length 将返回与 end 等于 buf.length 相同的结果。
+
+该方法继承自 TypedArray.prototype.subarray()。
+
+修改新的 Buffer 切片会修改原来 Buffer 中的内存，因为两个对象分配的内存是重叠的。
 
 **实例**
 
 ```
 var buffer1 = Buffer.from('runoob');
 // 剪切缓冲区
-var buffer2 = buffer1.slice(0,2);
+var buffer2 = buffer1.subarray(0,2);
 console.log("buffer2 content: " + buffer2.toString());
+
+const buf1 = Buffer.allocUnsafe(26);
+
+for (let i = 0; i < 26; i++) {
+  // 97 is the decimal ASCII value for 'a'.
+  buf1[i] = i + 97;
+}
+
+const buf2 = buf1.subarray(0, 3);
+
+console.log(buf2.toString('ascii', 0, buf2.length));
+// Prints: abc
+
+buf1[0] = 33;
+
+console.log(buf2.toString('ascii', 0, buf2.length));
+
 
 ```
 
