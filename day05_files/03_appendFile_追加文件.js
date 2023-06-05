@@ -28,15 +28,24 @@ const filePath = path.resolve(process.cwd(), 'readFile', 'text.text');
 //     })
 // })
 
-const appendFile = path.resolve(filePath, 'append.js')
 // 追加数据到对应文件，如果文件存在则添加到对应文件中，如果不存在则创建该文件并把数据添加其中
 fs.appendFile(filePath, Date.now() + '\n', (err) => {
     if (err) {
-        throw new Error(err)
-        return false
+        throw new Error(err);
+        return false;
     }
-    console.log('ok')
+    console.log('ok');
 })
 
+// 创建append.text文件
+const appendFile = path.resolve(__dirname, 'readFile', 'append.text')
+console.log(appendFile, 'appendFile')
+fs.appendFile(appendFile, '你好：' + Date.now() + '\n', (err) => {
+    if (err) {
+        throw new Error(err);
+        return false;
+    }
+    console.log('添加完毕');
+})
 
 

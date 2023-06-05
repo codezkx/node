@@ -2833,7 +2833,19 @@ fs.writeFileSync(file, data[, options])
 #### 追加文件
 
 > fs.appendFile(file, data[, options], callback)
+    参数
+        path <string> | <Buffer> | <URL> | <number> 文件名或文件描述符
+        data <string> | <Buffer>
+        options <Object> | <string>
+            encoding <string> | <null> 默认值： 'utf8'
+            mode <integer> 默认值： 0o666
+            flag <string> 参见 支持文件系统 flags。 默认值: 'a'。
+        callback <Function>
+            err <Error>
 
+            
+    异步地将数据追加到文件，如果该文件尚不存在，则创建该文件。 data 可以是字符串<Buffer>。
+    mode 选项仅影响新创建的文件。 有关详细信息，请参阅 fs.open()。
 ```
 fs.appendFile('./1.txt',Date.now()+'\n',function(){
   console.log('ok');
@@ -2861,8 +2873,33 @@ function copy(src,target){
 > - [mode],权限，如777，表示任何用户读写可执行 
 > - callback 打开文件后回调函数，参数默认第一个err,第二个fd为一个整数，表示打开文件返回的文件描述符，window中又称文件句柄
 
+文件权限描述
+常量	                 八进制	描述
+fs.constants.S_IRUSR	0o400	所有者阅读
+fs.constants.S_IWUSR	0o200	所有者可写
+fs.constants.S_IXUSR	0o100	由所有者执行/搜索
+fs.constants.S_IRGRP	0o40	分组阅读
+fs.constants.S_IWGRP	0o20	群组可写
+fs.constants.S_IXGRP	0o10	按组执行/搜索
+fs.constants.S_IROTH	0o4	别人读
+fs.constants.S_IWOTH	0o2	其他人可写
+fs.constants.S_IXOTH	0o1	由他人执行/搜索
+
+0666: 读写执行权限所有人
+0644:读权限所有人, 写权限所有者
+0600:只有所有者具有读写执行权限
+
+
 ```
-fs.open('./1,txt','r',0600,function(err,fd){});
+fs.open(filePath, 'r', '0600', (err, fd) => {
+    if (err) {
+        throw new Error(err);
+    }
+    console.log(fd);
+    fs.readFile(fd, (err, data) => {
+        console.log(data)
+    })
+});
 
 ```
 
@@ -2895,6 +2932,17 @@ fs.open(path.join(__dirname,'1.txt'),'r',0o666,function (err,fd) {
 })
 
 ```
+fs.read 和 fs.readFile 的区别:
+  fs.read 是流式读取,适用于大文件。它一次读取部分内容,需要重复调用才能读取完整文件。
+  fs.readFile 是一次性读取整个文件内容。
+使用场景:
+  小文件:推荐使用 fs.readFile,简单方便
+  大文件:推荐使用 fs.read,避免一次性读入内存过大导致性能问题
+
+总的来说:
+  fs.readFile 更简单,适用于小文件
+  fs.read 内部实现使用了可流式读取,更适用于大文件
+
 
 #### 写入文件
 
