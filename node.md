@@ -2762,7 +2762,7 @@ const fs = require('fs')
 ```
 
 ### flag
-
+// 排它：  如果文件不存在则创建， 存在则报错
 | 符号 | 含义                                     |
 | ---- | ---------------------------------------- |
 | r    | 读文件，文件不存在报错                   |
@@ -2978,6 +2978,53 @@ fs.open(path.join(__dirname,'1.txt'),'w',0o666,function (err,fd) {
 
 ```
 
+```
+/* 
+    fs.writev(fd, buffers[, position], callback)
+        参数：
+            fd <integer>
+            buffers <ArrayBufferView[]>
+            position <integer> | <null> 默认值： null
+            callback <Function>
+                err <Error>
+                bytesWritten <integer>
+                buffers <ArrayBufferView[]>
+
+        使用writev()将ArrayBufferView的数组写入fd指定的文件。
+        position 是该数据应写入的文件开头的偏移量。 如果 typeof position !== 'number'，则数据将写入当前位置。
+
+        回调将被赋予三个参数： err、bytesWritten 和 buffers。 bytesWritten 是从 buffers 写入的字节数。
+
+        如果这个方法是 util.promisify() 的，它返回具有 bytesWritten 和 buffers 属性的 Object 的 promise。
+
+        在同一个文件上多次使用 fs.writev() 而不等待回调是不安全的。 对于这种情况，请使用 fs.createWriteStream()。
+
+        在 Linux 上，以追加模式打开文件时，位置写入不起作用。 内核会忽略位置参数，并始终将数据追加到文件末尾。
+*/
+fs.open(filePath, 'w', '0666', (err, fd) => {
+    // 将Buffer数据写入到指定的文件中
+    const buf = [Buffer.from(ancientPoetry), Buffer.from('作则：无名')];
+    fs.writev(fd, buf, buf.length, (err, bytesWritten, buffers) => {
+        if (err) throw new Error(err);
+        console.log('bytesWritten: ', bytesWritten);
+        console.log('buffers: ', buffers.toString());
+    });
+})
+
+```
+
+fs.writev()、fs.write() 和 fs.writeFile() 是三种常用的方式。
+
+fs.writev() 是一个异步方法，用于将多个缓冲区的数据依次写入文件。这个方法的优点是可以一次写入多个缓冲区，从而提高写入效率。但是，它的参数比较复杂，需要传递一个数组，数组中的每个元素是一个缓冲区。
+
+fs.write() 是一个异步方法，用于将一个缓冲区的数据写入文件。这个方法的优点是参数比较简单，只需要传递一个缓冲区即可。但是，如果需要写入多个缓冲区，则需要多次调用这个方法。
+
+fs.writeFile() 是一个异步方法，用于将一个字符串或缓冲区的数据写入文件。这个方法的优点是参数非常简单，只需要传递一个文件名和数据即可。但是，它的写入方式是将整个数据写入文件，因此对于大文件可能会比较慢。
+
+根据不同的需求，你可以选择不同的写入方式。如果需要写入多个缓冲区，可以选择 fs.writev()；如果只需要写入一个缓冲区，可以选择 fs.write()；如果写入的是字符串或缓冲区，并且文件不是很大，可以选择 fs.writeFile()。
+
+此外，这些方法还有对应的同步版本，例如 fs.writevSync()、fs.writeSync() 和 fs.writeFileSync()，它们的使用方式和异步版本类似，只是方法名中多了一个 Sync。需要注意的是，同步方法会阻塞主线程，因此在使用时需要格外小心。
+
 #### 同步磁盘缓存
 
 > fs.fsync(fd,[callback]);
@@ -2985,6 +3032,28 @@ fs.open(path.join(__dirname,'1.txt'),'w',0o666,function (err,fd) {
 ```js
 // 使用fs.write写入文件时，操作系统是将数据读到内存，再把数据写入到文件中，当数据读完时并不代表数据已经写完，因为有一部分还可能在内在缓冲区内。
 // 因此可以使用fs.fsync方法将内存中数据写入文件；--刷新内存缓冲区；
+
+// fs.fsync() 是一个用于将文件数据刷新到磁盘的方法，它可以确保文件的写入操作已经被写入到磁盘中
+
+/* 
+  需要注意的是，由于 fs.fsync() 方法需要将数据刷新到磁盘中，因此它的性能比较低，通常只有在确保数据写入磁盘后才会使用这个方法。如果只是需要将数据写入文件中，可以使用 fs.write() 或 fs.writeFile() 方法。
+
+另外，由于 fs.fsync() 方法会阻塞线程，因此在使用时需要格外小心，避免对应用程序的性能产生影响。
+
+fsync 有两个作用:
+
+  数据持久化:将内存缓存的数据写入磁盘,确保在断电等情况下不丢失数据。
+
+  数据一致性:保证一个文件操作完成后,其他进程能立即访问到最新数据。
+
+  
+
+fsync 如果能及时调用,有利于提高文件系统的可靠性和一致性。
+
+它对应的异步版本是 fs.fsync(fd, callback) 。
+
+所以总的来说,fs.fsync 的作用主要是确保文件数据能及时写入磁盘,以保障数据的完整性和一致性。
+*/
 
 //fs.fsync(fd, [callback])
 /**
@@ -3063,13 +3132,35 @@ copy(path.join(__dirname,'1.txt'),path.join(__dirname,'2.txt'),()=>console.log('
 
  fs.access(path[, mode], callback)
 
-```
+fs.constants 对象是 Node.js 中 fs 模块中的一个常量集合，包含了一些常用的文件系统常量。下面是 fs.constants 对象下所有属性及其对应的意思：
+
+fs.constants.F_OK：用于 fs.access() 函数中，表示文件可见性检查标志，表示文件存在即可。
+fs.constants.R_OK：用于 fs.access() 函数中，表示文件可读性检查标志，表示文件可被读取。
+fs.constants.W_OK：用于 fs.access() 函数中，表示文件可写性检查标志，表示文件可被写入。
+fs.constants.X_OK：用于 fs.access() 函数中，表示文件可执行性检查标志，表示文件可被执行。
+fs.constants.O_RDONLY：表示以只读模式打开文件。
+fs.constants.O_WRONLY：表示以只写模式打开文件。
+fs.constants.O_RDWR：表示以读写模式打开文件。
+fs.constants.O_CREAT：表示如果文件不存在，则创建文件。
+fs.constants.O_TRUNC：表示在打开文件时截断文件，将文件长度设置为 0。
+fs.constants.O_APPEND：表示在写文件时将数据追加到文件末尾。
+fs.constants.O_EXCL：表示与 O_CREAT 一起使用，如果文件已经存在，则创建文件失败。
+fs.constants.S_IFMT：用于 fs.stat() 函数中，表示文件类型掩码。
+fs.constants.S_IFREG：用于 fs.stat() 函数中，表示普通文件类型。
+fs.constants.S_IFDIR：用于 fs.stat() 函数中，表示目录文件类型。
+fs.constants.S_IFCHR：用于 fs.stat() 函数中，表示字符设备文件类型。
+fs.constants.S_IFBLK：用于 fs.stat() 函数中，表示块设备文件类型。
+fs.constants.S_IFIFO：用于 fs.stat() 函数中，表示 FIFO（命名管道）文件类型。
+fs.constants.S_IFLNK：用于 fs.stat() 函数中，表示符号链接文件类型。
+fs.constants.S_IFSOCK：用于 fs.stat() 函数中，表示套接字文件类型。
+这些常量可用于文件系统操作函数中，例如 fs.access()、fs.open()、fs.stat() 等，用于指定文件的访问权限、打开模式和文件类型等信息。
+
+````
  fs.access('/etc/passwd', fs.constants.R_OK | fs.constants.W_OK, (err) => {
    console.log(err ? 'no access!' : 'can read/write');
  });
  
-
-```
+````
 
 #### 读取目录下所有的文件
 
@@ -3119,6 +3210,56 @@ Stats {
 - ctime(State Change Time)：属性或内容上次被修改的时间。
 - mtime(Modified time)：档案的内容上次被修改的时间。
 
+
+````
+fs.statfs(path[, options], callback)#
+新增于: v19.6.0, v18.15.0
+  path <string> | <Buffer> | <URL>
+  options <Object>
+  bigint <boolean> 返回的 <fs.StatFs> 对象中的数值是否应为 bigint。 默认值: false。
+  callback <Function>
+  err <Error>
+  stats <fs.StatFs>
+  // 异步的 statfs(2)。 返回有关包含 path 的已安装文件系统的信息。 回调有两个参数 (err, stats)，其中 stats 是 <fs.StatFs> 对象。
+
+  // 如果出现错误，err.code 将是 常见系统错误 之一。
+
+````
+
+```
+/* 
+    fs.statfs(path[, options], callback)
+        path <string> | <Buffer> | <URL>
+        options <Object>
+            bigint <boolean> 返回的 <fs.StatFs> 对象中的数值是否应为 bigint。 默认值: false。
+        callback <Function>
+            err <Error>
+            stats <fs.StatFs>
+        
+        异步的 statfs(2)。 返回有关包含 path 的已安装文件系统的信息。 回调有两个参数 (err, stats)，其中 stats 是 <fs.StatFs> 对象。
+*/
+
+fs.statfs(filePath, { bufgint: true }, (err, stats) => {
+    if (err) throw new Error(err);
+    console.log(stats, 'stats');
+    /* 
+        statfs.bavail #非特权用户可用的空闲块。
+
+        statfs.bfree#文件系统中的空闲块。
+
+        statfs.blocks #文件系统中的总数据块。
+
+        statfs.bsize #最佳传输块大小。
+
+        statfs.ffree #文件系统中的空闲文件节点。
+
+        statfs.files #文件系统中的文件节点总数。
+
+        statfs.type #文件系统的类型。
+    */
+})
+```
+
 #### 文件是否存在
 
 > fs.exists(path, callback)
@@ -3157,21 +3298,109 @@ fs.rename(oldPath, newPath, callback)
 #### 删除文件
 
 ```
-fs.unlink(path, callback)
+/* 
+    fs.unlink(path, callback)
+        path <string> | <Buffer> | <URL>
+        callback <Function>
+            err <Error>
 
+    异步地删除文件或符号链接。 除了可能的异常之外，没有为完成回调提供任何参数。
+
+    fs.unlink() 不适用于目录，无论是空目录还是其他目录。 要删除目录，请使用 fs.rmdir()。
+
+*/
+
+const filePath = path.resolve(path.dirname(__filename), 'auto_mkdir')
+
+fs.mkdir(filePath, {recursive: true},(err, mkdirPath) => { // 创建一个目录
+    if (err) throw new Error(err);
+    const buf = Buffer.from('你好！我是自动创建的文件，学习node时只有用心学，并不会难！')
+    const _path = path.resolve(filePath, 'text.text')
+    fs.writeFile(_path, buf, (err) => { // 创建一个文件
+        if (err) throw new Error(err);
+        setTimeout(() => {
+            fs.unlink(_path, (err) => { // 删除一个目录
+                if (err) throw new Error(err);
+                console.log(`${_path}------> 文件删除成功！！！！！`)
+            })
+        }, 2000);
+    })
+
+})
+
+
+```
+
+fs.unlink() 不适用于目录，无论是空目录还是其他目录。 要删除目录，请使用 fs.rmdir()。
+
+#### 删除目录
+
+```
+/* 
+    fs.rmdir(path[, options], callback)
+        path <string> | <Buffer> | <URL>
+        options <Object>
+            maxRetries <integer> 如果遇到 EBUSY、EMFILE、ENFILE、ENOTEMPTY 或 EPERM 错误，Node.js 将在每次尝试时以 retryDelay 毫秒的线性退避等待时间重试该操作。 此选项表示重试次数。 如果 recursive 选项不为 true，则忽略此选项。 默认值: 0。
+            recursive <boolean> 如果为 true，则执行递归目录删除。 在递归模式下，操作将在失败时重试。 默认值: false。 已弃用。
+            retryDelay <integer> 重试之间等待的时间（以毫秒为单位）。 如果 recursive 选项不为 true，则忽略此选项。 默认值: 100。
+        callback <Function>
+            err <Error>
+
+
+异步的 rmdir(2)。 除了可能的异常之外，没有为完成回调提供任何参数。
+
+在文件（而不是目录）上使用 fs.rmdir()，则在 Windows 上会导致 ENOENT 错误，在 POSIX 上会导致 ENOTDIR 错误。
+
+要获得类似于 rm -rf Unix 命令的行为，则使用具有选项 { recursive: true, force: true } 的 fs.rm()。
+
+*/
+
+const filePath = path.resolve(path.dirname(__filename), 'auto_mkdir');
+
+fs.mkdir(filePath, (err) => {
+    if (err) throw new Error(err);
+    console.log(`创建目录 ---${filePath} ---- 成功`);
+    setTimeout(() => {
+        fs.rmdir(filePath, (err) => {
+            if (err) throw new Error(err);
+            console.log(`删除目录 ---${filePath} ---- 成功`);
+        })
+    }, 2000);
+})
 
 ```
 
 #### 截断文件
 
 ```
-fs.ftruncate(fd[, len], callback)
+const path = require('path');
+const fs = require('fs');
+const { Buffer } = require('buffer');
+const { ancientPoetry } = require('./data');
 
-const fd = fs.openSync('temp.txt', 'r+');
-// 截断文件至前4个字节
-fs.ftruncate(fd, 4, (err) => {
-  console.log(fs.readFileSync('temp.txt', 'utf8'));
+/* 
+    fs.ftruncate(fd[, len], callback)
+        fd <integer>
+        len <integer> 默认值： 0
+        callback <Function>
+            err <Error>
+    
+    截断文件描述符。 除了可能的异常之外，没有为完成回调提供任何参数。
+
+    有关更多详细信息，请参阅 POSIX ftruncate(2) 文档。
+
+    如果文件描述符引用的文件大于 len 个字节，则文件中将仅保留前 len 个字节。
+*/
+const pathFile = path.resolve(__dirname, 'readFile/text.text')
+
+fs.open(pathFile, 'r+', (err, fd) => { // 开启文件
+    if (err) throw new Error(err);
+    fs.ftruncate(fd, 1, (err) => { // 截取文件
+        if (err) throw new Error(err);
+        fs.close(fd); // 关闭文件
+    })
 });
+
 
 ```
 
@@ -3196,9 +3425,115 @@ fs.watchFile('1.txt', (curr, prev) => { //curr当前状态   之前状态prev
 
 ```
 
+````
+const path = require('path');
+const fs = require('fs');
+const { Buffer } = require('buffer');
+const { ancientPoetry } = require('./data');
+
+/* 
+    fs.watchFile(filename[, options], listener)
+        filename <string> | <Buffer> | <URL>
+        options <Object>
+            bigint <boolean> 默认值： false
+            persistent <boolean> 默认值： true
+            interval <integer> 默认值： 5007
+        listener <Function>
+            current <fs.Stats>
+            previous <fs.Stats>
+        返回： <fs.StatWatcher>
+
+监视 filename 的变化。 每次访问文件时都会调用回调 listener。
+
+可以省略 options 参数。 如果提供，它应该是一个对象。 options 对象可以包含名为 persistent 的布尔值，其指示当文件正在被监视时，进程是否应该继续运行。 options 对象可以指定 interval 属性，指示应该轮询目标的频率（以毫秒为单位）。
+*/
+const pathFile = path.resolve(path.dirname(__filename), './watch/watchText.text');
+
+const listnerFn = (curr, prev) => {
+    console.log('curr: ', curr);
+    console.log('prev: ', prev);
+    fs.unwatchFile(pathFile, listnerFn); // 停止监听文件
+};
+
+// const statWatch = fs.watchFile(pathFile, {}, listnerFn);
+/* 
+console.log(statWatch, 'statWatch')
+    <ref *1> StatWatcher {
+        _events: [Object: null prototype] { change: [Function (anonymous)] },
+        _eventsCount: 1,
+        _maxListeners: undefined,
+        _handle: StatWatcher {
+            onchange: [Function: onchange],
+            [Symbol(owner_symbol)]: [Circular *1]
+        },
+        [Symbol(kCapture)]: false,
+        [Symbol(kOldStatus)]: -1,
+        [Symbol(kUseBigint)]: undefined,
+        [Symbol(KFSStatWatcherRefCount)]: 1,
+        [Symbol(KFSStatWatcherMaxRefCount)]: 1
+    }
+*/
+
+
+
+/* 
+    fs.unwatchFile(filename[, listener])
+        filename <string> | <Buffer> | <URL>
+        listener <Function> 可选，先前使用 fs.watchFile() 附加的监听器。
+
+    停止监视 filename 的变化。 如果指定了 listener，则仅删除该特定监听器。 否则，所有监听器都将被删除，从而有效地停止对 filename 的监视。
+
+    使用未被监视的文件名调用 fs.unwatchFile() 是空操作，而不是错误。
+
+    使用 fs.watch() 比 fs.watchFile() 和 fs.unwatchFile() 更高效。 应尽可能使用 fs.watch() 而不是 fs.watchFile() 和 fs.unwatchFile()。
+
+*/
+
+// fs.unwatchFile(pathFile, listnerFn);
+
+
+/* 
+    fs.watch(filename[, options][, listener])#
+        filename <string> | <Buffer> | <URL>
+        options <string> | <Object>
+            persistent <boolean> 指示只要正在监视文件，进程是否应继续运行。 默认值： true。
+            recursive <boolean> 指示是应监视所有子目录，还是仅监视当前目录。 这在指定目录时适用，并且仅适用于受支持的平台（参见 caveats）。 默认值： false。
+            encoding <string> 指定用于传给监听器的文件名的字符编码。 默认值： 'utf8'。
+            signal <AbortSignal> 允许使用中止信号关闭监视器。
+        listener <Function> | <undefined> 默认值： undefined
+            eventType <string>
+            filename <string> | <Buffer>
+        返回： <fs.FSWatcher>
+
+
+        监视 filename 的变化，其中 filename 是文件或目录。
+
+        第二个参数是可选的。 如果 options 作为字符串提供，则它指定 encoding。 否则 options 应作为对象传入。
+
+        监听器回调有两个参数 (eventType, filename)。 eventType 是 'rename' 或 'change'，filename 是触发事件的文件的名称。
+
+        在大多数平台上，只要目录中文件名出现或消失，就会触发 'rename'。
+
+        监听器回调绑定到由 <fs.FSWatcher> 触发的 'change' 事件，但它与 eventType 的 'change' 值不同。
+
+        如果传入了 signal，则中止相应的 AbortController 将关闭返回的 <fs.FSWatcher>。
+*/
+console.log(__dirname, '__dirname')
+fs.watch(__dirname, {persistent: true, recursive: true }, (curr, prev) => {
+    console.log('prev: ', prev);
+    console.log('curr', curr);
+    console.log('目录下的文件被监听成功！！！！');
+});
+
+
+````
+
 ### 递归创建目录
 
 #### 同步创建目录
+fs.accessSync() 是 Node.js 文件系统模块（fs 模块）中的一个同步方法，用于检查文件或目录是否存在，并且是否具有指定的权限。
+
+fs.accessSync() 方法的作用是检查指定的文件或目录是否存在，并且当前用户是否具有指定的权限（例如读、写、执行等）。如果文件或目录不存在，或者用户没有足够的权限，该方法将抛出一个错误，否则该方法将正常返回。
 
 ```js
 let fs=require('fs');
@@ -3212,7 +3547,6 @@ function makepSync(dir) {
         } catch (error) {
             fs.mkdirSync(parent);
         }
-
     }
 }
 
