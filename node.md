@@ -3817,16 +3817,14 @@ server.on('timeout',function(){
     let http = require('http');
     let fs = require('fs');
     let server = http.createServer(function(req,res){
-    if(req.url != '/favicon.ico'){
-    let out = fs.createWriteStream(path.join(__dirname,'request.log'));
-    out.write('method='+req.method);
-    out.write('url='+req.url);
-    out.write('headers='+JSON.stringify(req.headers));
-    out.write('httpVersion='+req.httpVersion);
+      if(req.url != '/favicon.ico'){
+      let out = fs.createWriteStream(path.join(__dirname,'request.log'));
+      out.write('method='+req.method);
+      out.write('url='+req.url);
+      out.write('headers='+JSON.stringify(req.headers));
+      out.write('httpVersion='+req.httpVersion);
     }
     }).listen(8080,'127.0.0.1);
-    
-    
     ```
 
 ```
