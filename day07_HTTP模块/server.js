@@ -27,11 +27,11 @@ const server = http.createServer((request, response) => {
         response.end(JSON.stringify({
             ata: 'Hello World!',
         }));
-    })
+    });
+    response.end();
 });
 
 const port = 3000;
 server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
-

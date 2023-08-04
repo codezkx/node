@@ -5580,3 +5580,220 @@ axios.post('/api/test', {name: 'xiao'});
 
 > 因为客户端请求服务端的数据是存在跨域问题的，而服务器和服务器之间可以相互请求数据，是没有跨域的概念（如果服务器没有设置禁止跨域的权限问题），也就是说，我们可以配置一个代理的服务器可以请求另一个服务器中的数据，然后把请求出来的数据返回到我们的代理服务器中，代理服务器再返回数据给我们的客户端，这样我们就可以实现跨域访问数据啦。
 
+
+
+
+
+
+
+
+
+
+
+
+类：http.Server#
+新增于: v0.1.17
+继承： <net.Server>
+
+事件：'checkContinue'#
+新增于: v0.3.0
+request <http.IncomingMessage>
+response <http.ServerResponse>
+每次收到带有 HTTP Expect: 100-continue 的请求时触发。 如果未监听此事件，则服务器将根据需要自动响应 100 Continue。
+
+如果客户端应该继续发送请求正文，则处理此事件涉及调用 response.writeContinue()，或者如果客户端不应该继续发送请求正文，则生成适当的 HTTP 响应（例如 400 Bad Request）。
+
+处理和处理此事件时，不会触发 'request' 事件。
+
+
+事件：'checkExpectation'#
+新增于: v5.5.0
+request <http.IncomingMessage>
+response <http.ServerResponse>
+每次收到带有 HTTP Expect 标头的请求时触发，其中值不是 100-continue。 如果未监听此事件，则服务器将根据需要自动响应 417 Expectation Failed。
+
+处理和处理此事件时，不会触发 'request' 事件。
+
+
+事件：'clientError'#
+版本历史
+exception <Error>
+socket <stream.Duplex>
+如果客户端连接触发 'error' 事件，则会在此处转发。 此事件的监听器负责关闭/销毁底层套接字。 例如，可能希望使用自定义 HTTP 响应更优雅地关闭套接字，而不是突然切断连接。 监听器结束前的套接字 必须关闭或销毁。
+
+除非用户指定 <net.Socket> 以外的套接字类型，否则此事件保证传入 <net.Socket> 类（<stream.Duplex> 的子类）的实例。
+
+默认行为是尝试使用 HTTP '400 Bad Request' 关闭套接字，或在发生 HPE_HEADER_OVERFLOW 错误时使用 HTTP '431 Request Header Fields Too Large'。 如果套接字不可写或当前附加的 http.ServerResponse 的标头已发送，则立即销毁。
+
+socket 是错误源自的 net.Socket 对象。
+
+const http = require('node:http');
+
+const server = http.createServer((req, res) => {
+  res.end();
+});
+server.on('clientError', (err, socket) => {
+  socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+});
+server.listen(8000); 拷贝
+当 'clientError' 事件发生时，没有 request 或 response 对象，因此发送的任何 HTTP 响应，包括响应头和负载，都必须直接写入 socket 对象。 必须注意确保响应是格式正确的 HTTP 响应消息。
+
+err 是 Error 的实例，有两个额外的列：
+
+bytesParsed: Node.js 可能正确解析的请求数据包的字节数；
+rawPacket: 当前请求的原始数据包。
+在某些情况下，客户端已经收到响应和/或套接字已经被销毁，例如 ECONNRESET 错误。 在尝试向套接字发送数据之前，最好检查它是否仍然可写。
+
+server.on('clientError', (err, socket) => {
+  if (err.code === 'ECONNRESET' || !socket.writable) {
+    return;
+  }
+
+  socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+}); 拷贝
+
+事件：'close'#
+新增于: v0.1.4
+服务器关闭时触发。
+
+
+事件：'connect'#
+新增于: v0.7.0
+request <http.IncomingMessage> HTTP 请求的参数，如它在 'request' 事件中
+socket <stream.Duplex> 服务器和客户端之间的网络套接字
+head <Buffer> 隧道流的第一个数据包（可能为空）
+每次客户端请求 HTTP CONNECT 方法时触发。 如果未监听此事件，则请求 CONNECT 方法的客户端将关闭其连接。
+
+除非用户指定 <net.Socket> 以外的套接字类型，否则此事件保证传入 <net.Socket> 类（<stream.Duplex> 的子类）的实例。
+
+触发此事件后，请求的套接字将没有 'data' 事件监听器，这意味着需要绑定它才能处理发送到该套接字上的服务器的数据。
+
+
+事件：'connection'#
+新增于: v0.1.0
+socket <stream.Duplex>
+当建立新的 TCP 流时会触发此事件。 socket 通常是 net.Socket 类型的对象。 通常用户不会想访问这个事件。 特别是，由于协议解析器附加到套接字的方式，套接字将不会触发 'readable' 事件。 socket 也可以在 request.socket 上访问。
+
+此事件也可以由用户显式触发，以将连接注入 HTTP 服务器。 在这种情况下，任何 Duplex 流都可以通过。
+
+如果此处调用 socket.setTimeout()，则当套接字已服务请求时（如果 server.keepAliveTimeout 非零）超时将替换为 server.keepAliveTimeout。
+
+除非用户指定 <net.Socket> 以外的套接字类型，否则此事件保证传入 <net.Socket> 类（<stream.Duplex> 的子类）的实例。
+
+
+事件：'dropRequest'#
+新增于: v18.7.0, v16.17.0
+request <http.IncomingMessage> HTTP 请求的参数，如它在 'request' 事件中
+socket <stream.Duplex> 服务器和客户端之间的网络套接字
+当套接字上的请求数达到 server.maxRequestsPerSocket 的阈值时，服务器会丢弃新的请求并触发 'dropRequest' 事件，然后将 503 发送给客户端。
+
+
+事件：'request'#
+新增于: v0.1.0
+request <http.IncomingMessage>
+response <http.ServerResponse>
+每次有请求时触发。 每个连接可能有多个请求（在 HTTP Keep-Alive 连接的情况下）。
+
+
+事件：'upgrade'#
+版本历史
+request <http.IncomingMessage> HTTP 请求的参数，如它在 'request' 事件中
+socket <stream.Duplex> 服务器和客户端之间的网络套接字
+head <Buffer> 升级流的第一个数据包（可能为空）
+每次客户端请求 HTTP 升级时触发。 监听此事件是可选的，客户端不能坚持协议更改。
+
+触发此事件后，请求的套接字将没有 'data' 事件监听器，这意味着需要绑定它才能处理发送到该套接字上的服务器的数据。
+
+除非用户指定 <net.Socket> 以外的套接字类型，否则此事件保证传入 <net.Socket> 类（<stream.Duplex> 的子类）的实例。
+
+
+server.close([callback])#
+版本历史
+callback <Function>
+停止服务器接受新连接并关闭连接到该服务器的所有未发送请求或等待响应的连接。 参见 net.Server.close()。
+
+
+server.closeAllConnections()#
+新增于: v18.2.0
+关闭所有连接到此服务器的连接。
+
+
+server.closeIdleConnections()#
+新增于: v18.2.0
+关闭连接到此服务器的所有未发送请求或等待响应的连接。
+
+
+server.headersTimeout#
+版本历史
+<number> 默认值： The minimum between server.requestTimeout or 60000.
+限制解析器等待接收完整 HTTP 标头的时间。
+
+如果超时到期，则服务器以状态 408 响应而不将请求转发给请求监听器，然后关闭连接。
+
+必须将其设置为非零值（例如 120 秒）以防止潜在的拒绝服务攻击，以防在部署服务器之前没有反向代理的情况下。
+
+
+server.listen()#
+启动 HTTP 服务器监听连接。 此方法与 net.Server 中的 server.listen() 相同。
+
+
+server.listening#
+新增于: v5.7.0
+<boolean> 指示服务器是否正在监听连接。
+
+server.maxHeadersCount#
+新增于: v0.7.0
+<number> 默认值： 2000
+限制最大传入标头计数。 如果设置为 0，则不会应用任何限制。
+
+
+server.requestTimeout#
+版本历史
+<number> 默认值： 300000
+设置从客户端接收整个请求的超时值（以毫秒为单位）。
+
+如果超时到期，则服务器以状态 408 响应而不将请求转发给请求监听器，然后关闭连接。
+
+必须将其设置为非零值（例如 120 秒）以防止潜在的拒绝服务攻击，以防在部署服务器之前没有反向代理的情况下。
+
+
+server.setTimeout([msecs][, callback])#
+版本历史
+msecs <number> 默认值： 0（无超时）
+callback <Function>
+返回： <http.Server>
+设置套接字的超时值，并在服务器对象上触发 'timeout' 事件，如果发生超时，则将套接字作为参数传入。
+
+如果 Server 对象上有 'timeout' 事件监听器，则将使用超时套接字作为参数调用它。
+
+默认情况下，服务器不会超时套接字。 但是，如果将回调分配给服务器的 'timeout' 事件，则必须显式处理超时。
+
+
+server.maxRequestsPerSocket#
+新增于: v16.10.0
+<number> 每个套接字的请求数。 默认值： 0（无限制）
+关闭保持活动的连接之前，套接字可以处理的最大请求数。
+
+0 值将禁用限制。
+
+当达到限制时，则它会将 Connection 标头值设置为 close，但不会实际地关闭连接，达到限制后发送的后续请求将获得 503 Service Unavailable 作为响应。
+
+
+server.timeout#
+版本历史
+<number> 以毫秒为单位的超时时间。 默认值： 0（无超时）
+假定套接字超时之前不活动的毫秒数。
+
+值 0 将禁用传入连接的超时行为。
+
+套接字超时逻辑是在连接上设置的，因此更改此值只会影响到服务器的新连接，而不会影响任何现有连接。
+
+
+server.keepAliveTimeout#
+新增于: v8.0.0
+<number> 以毫秒为单位的超时时间。 默认值： 5000（5 秒）。
+在完成写入最后一个响应之后，在套接字将被销毁之前，服务器需要等待额外传入数据的不活动毫秒数。 如果服务器在 keep-alive 超时触发之前收到新数据，则将重置常规的不活动超时，即 server.timeout。
+
+值 0 将禁用传入连接上的保持活动超时行为。 值 0 使 http 服务器的行为类似于 8.0.0 之前的 Node.js 版本，后者没有保持活动超时。
+
+套接字超时逻辑是在连接上设置的，因此更改此值只会影响到服务器的新连接，而不会影响任何现有连接。
