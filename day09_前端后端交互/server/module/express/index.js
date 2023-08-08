@@ -2,13 +2,13 @@ const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const { getQuery } = require('../../util');
-const { user, finalTeam} = require('../../router')
 
+const cacheRouteName = [];
+let instantiation = null;
 class requesetServer {
     constructor(server) {
         this.server = server;
         this.requesetCallback = null
-        this.cacheRouteName = []
         server.on('request', (req, res) => {
             this.response = res;
             const method = req.method?.toLocaleUpperCase() || 'GET';
@@ -16,21 +16,32 @@ class requesetServer {
             if (method === 'GET') {
                 const queryList = path.split('?');
                 const url = queryList[0];
+                if (!cacheRouteName.includes(url)) {
+                    res.statusCode = 404
+                    res.statusMessage = '404 Not Found'
+                    res.end();
+                }
                 req.query = getQuery(queryList[1]);
                 this.requeset = req;
-                this.requesetCallback(req, res);
+                this.requesetCallback?.(req, res);
             } else if (method === 'POST') {
+                if (!cacheRouteName.includes(path)) {
+                    res.statusCode = 404
+                    res.statusMessage = '404 Not Found'
+                    res.end();
+                }
                 req.on('data', (chunk) => {
                     req.body = chunk.toString();
                     this.requeset = req;
-                    this.requesetCallback(req, res);
+                    this.requesetCallback?.(req, res);
                 })
             }
         })
     }
 
-    use(path, module) {
-        this.cacheRouteName.push(path); // 缓存请求路径
+    use(path, cb) {
+        cacheRouteName.push(path);
+        this.requesetCallback = cb
     }
 
     router(path, callback) {
@@ -46,12 +57,17 @@ class requesetServer {
     }
 }
 
-const useRouter = (server) => {
-    const instantiation = new requesetServer(server);
-    return (path, route) => {
-        console.log(path)
+const createServerinstantia = (server) => {
+    instantiation = new requesetServer(server);
+    return (path, cb) => {
+        cacheRouteName.push(path);
+        instantiation.requesetCallback = cb
         return instantiation
     }
+}
+
+const useRouter = () => {
+    return instantiation
 }
 
 const express = () => {
@@ -70,9 +86,12 @@ const express = () => {
     server.listen(port, () => {
         console.log(`Server running at http://localhost:${port}`);
     })
+    console.log('server')
     return {
-        use: useRouter(server),
+        use: createServerinstantia(server),
     }
 }
 
-module.exports = express
+module.exports = express;
+module.exports.Router = useRouter;
+
