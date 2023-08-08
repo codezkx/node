@@ -1,17 +1,32 @@
+import { formatQuery } from './utils/client.js';
+
 const ajax = function (config) {
+    const xhr = new XMLHttpRequest()
+    const host = 'http://127.0.0.1:3000/'
+    let url = host + config.url
+    const method = config.method?.toLocaleUpperCase() || 'GET'
+    
     let data = null
-    const xhr = new XMLHttpRequest(),
-        host = 'http://127.0.0.1:3000/',
-        url = host + config.url
-        method = config.method;
-        
+    if (method === 'POST') {
+        const params = config.data;
+        if (params) {
+            data = JSON.stringify(params);
+        }
+    }
+    if (method === 'GET') {
+        const query = formatQuery(config.data)
+        if (query) {
+            url += query
+        }
+    }    
+    
     xhr.open(method, url, true);
     // readyState 变化时处理
     xhr.onreadystatechange = function () {
         const status = xhr.status
         const readyState = xhr.readyState
         if (readyState !== 4) {
-            return 
+            return
         }
         if (status === 200
             || status < 300
@@ -53,7 +68,7 @@ const ajax = function (config) {
 
     // xhr.setRequestHeader('Content-Type', 'application/json');
 
-    xhr.send();
+    xhr.send(data);
 
     // 请求取消是触发；
     // xhr.onabort = function () {
@@ -71,13 +86,23 @@ const configs = {
     user: {
         method: 'GET',
         url: 'user',
+        data: {
+            username: 'uzi',
+            password: 123456,
+        },
         success: getUserInfo
     },
     finalTeam: {
         method: 'POST',
         url: 'final/team',
+        data: {
+            id: 123,
+        },
         success: getFinalTeam
     },
+    // {
+    //     method: 'GET',
+    // }
 }
 
 ajax(configs.user);
