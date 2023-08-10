@@ -1,8 +1,10 @@
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
+const EventEmitter = require('events');
 const { getQuery } = require('../../util');
 
+const eventEmitter = new EventEmitter();
 const cacheRouteName = [];
 let instantiation = null;
 class requesetServer {
@@ -11,37 +13,36 @@ class requesetServer {
         this.requesetCallback = null
         server.on('request', (req, res) => {
             this.response = res;
-            const method = req.method?.toLocaleUpperCase() || 'GET';
-            const path = req.url
-            if (method === 'GET') {
-                const queryList = path.split('?');
-                const url = queryList[0];
-                if (!cacheRouteName.includes(url)) {
-                    res.statusCode = 404
-                    res.statusMessage = '404 Not Found'
-                    res.end();
-                }
+            let url = req.url
+            const requestMethod = req.method?.toLocaleUpperCase() || 'GET';
+            if (['GET'].includes(requestMethod)) {
+                const queryList = url.split('?');
+                url = queryList[0];
                 req.query = getQuery(queryList[1]);
                 this.requeset = req;
-                this.requesetCallback?.(req, res);
-            } else if (method === 'POST') {
-                if (!cacheRouteName.includes(path)) {
-                    res.statusCode = 404
-                    res.statusMessage = '404 Not Found'
-                    res.end();
-                }
+            }
+            if (['POST'].includes(requestMethod)) {
                 req.on('data', (chunk) => {
                     req.body = chunk.toString();
                     this.requeset = req;
-                    this.requesetCallback?.(req, res);
                 })
             }
+            console.log(1);
+            eventEmitter.on('triggerRouter', (method) => {
+                if (requestMethod === method) {
+                    if (!cacheRouteName.includes(url)) {
+                        res.statusCode = 404
+                        res.statusMessage = '404 Not Found'
+                        res.end();
+                    }
+                    this.requesetCallback?.(req, res);
+                } else {
+                    res.statusCode = 404
+                    res.statusMessage = '请求方法不对'
+                    res.end();
+                }
+            })
         })
-    }
-
-    use(path, cb) {
-        cacheRouteName.push(path);
-        this.requesetCallback = cb
     }
 
     router(path, callback) {
@@ -49,10 +50,13 @@ class requesetServer {
     }
 
     get(path, cb) {
+        eventEmitter.emit('triggerRouter', 'GET')
         this.requesetCallback = cb; // 把路由回调函数传入
+        
     }
 
     psot(path, cb) {
+        eventEmitter.emit('triggerRouter', 'POST')
         this.requesetCallback = cb; // 把路由回调函数传入
     }
 }
@@ -61,7 +65,6 @@ const createServerinstantia = (server) => {
     instantiation = new requesetServer(server);
     return (path, cb) => {
         cacheRouteName.push(path);
-        instantiation.requesetCallback = cb
         return instantiation
     }
 }
@@ -86,7 +89,6 @@ const express = () => {
     server.listen(port, () => {
         console.log(`Server running at http://localhost:${port}`);
     })
-    console.log('server')
     return {
         use: createServerinstantia(server),
     }

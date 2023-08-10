@@ -1,4 +1,4 @@
-import { formatQuery } from './utils/client.js';
+import { formatQuery } from './day09_前端后端交互/utils/client.js';
 
 const ajax = function (config) {
     const xhr = new XMLHttpRequest()
@@ -10,7 +10,7 @@ const ajax = function (config) {
     if (method === 'POST') {
         const params = config.data;
         if (params) {
-            data = JSON.stringify(params);
+            data = typeof params === 'string' ? params : JSON.stringify(params);
         }
     }
     if (method === 'GET') {
@@ -66,7 +66,7 @@ const ajax = function (config) {
         // console.log('请求已超时，请重试!');
     }
 
-    // xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.send(data);
 
@@ -85,12 +85,12 @@ const ajax = function (config) {
 const configs = {
     user: {
         method: 'GET',
-        url: 'user',
+        url: 'users',
         data: {
             username: 'uzi',
             password: 123456,
         },
-        success: getUserInfo
+        success: getUserInfo,
     },
     finalTeam: {
         method: 'POST',
@@ -98,11 +98,14 @@ const configs = {
         data: {
             id: 123,
         },
-        success: getFinalTeam
+        success: getFinalTeam,
     },
-    // {
-    //     method: 'GET',
-    // }
+    createUser: {
+        method: 'POST',
+        url: 'user',
+        data: ['我是数据'],
+        success: getFinalTeam,
+    }
 }
 
 ajax(configs.user);
@@ -110,12 +113,14 @@ ajax(configs.user);
 function getUserInfo(data) {
     console.log(data);
     const userNameEl = document.querySelector(".user-name");
-    userNameEl.textContent = data.data.useInfo.userName
+    userNameEl.textContent = data.data.userInfo
+    .userName
 }
 
 
 const handleClick = function (e) {
     ajax(configs.finalTeam);
+    ajax(configs.createUser);
 }
 const headerButEl = document.querySelector(".header-btn");
 headerButEl.addEventListener('click', handleClick);
