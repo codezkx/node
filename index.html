@@ -12,7 +12,7 @@
     <title>AJAX请求练习</title>
   </head>
   <body>
-    <div class="header">
+    <div class="header" style="color: red; font-size: 16px;">
       <h3 class="user-name"></h3>
       <span>
         8号S13英雄联盟全球总决赛门票赛:
@@ -20,6 +20,12 @@
       <button
         type="button"
         class="header-btn">查看队伍</button>
+      <ul class="upload-list">
+          <div class="upload--picture-card">
+            <span class="upload-icon-plus">+</span>
+            <input type="file" name="file" class="upload__input">
+          </div>
+      </ul>
     </div>
     <script type="module" src="./00_AJAX异步交互.js"></script>
   </body>

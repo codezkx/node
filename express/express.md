@@ -1050,7 +1050,7 @@ app.get("/user", (req, res, next) => {
   // app.get()用于获取
   const name = app.get('name');
   console.log(name);
-  res.render('i	ndex')
+  res.render('index')
 });
 
 ```

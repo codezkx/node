@@ -85,7 +85,7 @@ const ajax = function (config) {
 const configs = {
     user: {
         method: 'GET',
-        url: 'users',
+        url: 'user',
         data: {
             username: 'uzi',
             password: 123456,
@@ -100,18 +100,15 @@ const configs = {
         },
         success: getFinalTeam,
     },
-    createUser: {
+    imageFlie: {
         method: 'POST',
-        url: 'user',
-        data: ['我是数据'],
-        success: getFinalTeam,
-    }
+        url: 'image/file',
+    },
 }
 
 ajax(configs.user);
 
 function getUserInfo(data) {
-    console.log(data);
     const userNameEl = document.querySelector(".user-name");
     userNameEl.textContent = data.data.userInfo
     .userName
@@ -120,16 +117,16 @@ function getUserInfo(data) {
 
 const handleClick = function (e) {
     ajax(configs.finalTeam);
-    ajax(configs.createUser);
+    ajax(configs.engine);
 }
 const headerButEl = document.querySelector(".header-btn");
 headerButEl.addEventListener('click', handleClick);
 function getFinalTeam(data) {
-    const list = data.data
-    const len = list.length
+    const list = data.data;
+    const len = list.length;
     headerButEl.removeEventListener('click', handleClick);
     const teamEl = document.querySelector(".team");
-    const documentFragment = document.createDocumentFragment()
+    const documentFragment = document.createDocumentFragment();
     for (let i = 0; i < len; i++) {
         const liEl = document.createElement('li');
         liEl.textContent = `${i + 1}号种子: `;
@@ -140,5 +137,52 @@ function getFinalTeam(data) {
         documentFragment.appendChild(liEl);
     }
     teamEl.appendChild(documentFragment);
+}
+
+
+const uploadBut = document.querySelector('.upload--picture-card');
+uploadBut.addEventListener('click', handleUpload);
+function handleUpload(e) {
+    const inputEl = document.querySelector('.upload__input');
+    inputEl.click() // 模拟文件上传
+    inputEl.addEventListener('change', handleInput);
+}
+
+function handleInput(e) {
+    const ul = document.querySelector('.upload-list');
+    const fragment = document.createDocumentFragment()
+    const files = e.target.files;
+    const len = files.length;
+    if (len === 0) {
+        return false;
+    }
+    const images = [];
+    for (let i = 0; i < len; i++) {
+        const file = files[0];
+        // images.push(
+        //     {
+        //         url: URL.createObjectURL(file),
+        //         name: file.name,
+        //     }
+        // ) 
+        const li = document.createElement('li');
+        li.className = ('upload--picture-card el-upload-list__item');
+        const img = document.createElement('img');
+        img.classList.add('upload-list__item-thumbnail')
+        img.src = URL.createObjectURL(file);
+        li.appendChild(img);
+        fragment.appendChild(li);
+        // imgLoad.push(new Promise((resolve, reject) => {
+        //     const reader = new FileReader();
+        //     reader.onload = function (e) {
+        //         const blob = new Blob([e.target.result], { type: file.type });
+        //         const 
+        //         resolve()
+        //         console.log(blob, 'blob', file.type)
+        //     };
+        //     reader.readAsArrayBuffer(file);
+        // }))
+    }
+    ul.prepend(fragment) // 插入第一个子节点前
 }
 
