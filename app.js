@@ -1,39 +1,41 @@
-setTimeout(() => {
-    console.log('TIMEOUT FIRED');
-}, 0)
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
 
-setTimeout(() => {
-    console.log(1);
-    new Promise(resolve => {
-        console.log(2);
-        resolve(3)
-    }).then(res => {
-        console.log(res)
-        setImmediate(() => {
-            console.log(8)
-        })
-    })
-}, 0)
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
 
+var app = express();
 
-// 下一次 Event loop 执行前调用
-process.nextTick(function A() {
-    console.log(4);
-})
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 
-new Promise(resolve => {
-    resolve(5)
-}).then(res => {
-    console.log(res)
-})
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
 
-setImmediate(() => {
-    console.log(6)
-})
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-process.nextTick(function foo() {
-    console.log('递归')
-    setImmediate(foo);
-  });
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;

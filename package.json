@@ -1,29 +1,16 @@
 {
-  "name": "node-base",
-  "version": "1.0.0",
-  "description": "node 基础学习",
-  "main": "main.js",
+  "name": "node",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./day01/app.js"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/codezkx/node.git"
-  },
-  "keywords": [
-    "node"
-  ],
-  "author": "晸",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/codezkx/node/issues"
-  },
-  "homepage": "https://github.com/codezkx/node#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.21.5",
-    "@babel/core": "^7.22.1",
-    "@babel/preset-env": "^7.22.4"
-  },
-  "dependencies": {}
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1"
+  }
 }
