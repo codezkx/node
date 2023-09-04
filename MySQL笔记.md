@@ -186,7 +186,7 @@ shwo databases;
 
 ### 创建数据库
 
-````
+````sql
 // 如果创建的数据库不存在则创建，反之报错
 create database coderhub;
 // 如果创建的数据库不存在则创建，反之不创建
@@ -198,7 +198,7 @@ DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
 ### 删除数据库
 
-```
+```sql
 // 如果存在则删除，反之报错
 DROP DATABASE 数据库名
 // 如果存在则删除，反之不执行删除操作
@@ -249,6 +249,14 @@ CREATE TABLE IF NOT EXISTS `users`(
 ````
 show tables;
 ````
+
+### 删除表
+
+````
+DROP TABLES `表名`;
+````
+
+
 
 ###  查看某一个表结构
 
@@ -548,7 +556,63 @@ SELECT * FROM `products` LIMIT 90, 30;
 
 > 对数据库、表格的权限进行相关访问控制操作；
 
+#### 管理用户
 
+查询用户：
+
+```
+USE mysql;SELECT * FROM user;
+```
+
+创建用户:
+`CREATE USER '用户名'@'主机名' IDENTIFIED BY '密码';`
+
+修改用户密码：
+`ALTER USER '用户名'@'主机名' IDENTIFIED WITH mysql_native_password BY '新密码';`
+
+删除用户：
+`DROP USER '用户名'@'主机名';`
+
+例子：
+
+```
+-- 创建用户test，只能在当前主机localhost访问create user 'test'@'localhost' identified by '123456';-- 创建用户test，能在任意主机访问create user 'test'@'%' identified by '123456';create user 'test' identified by '123456';-- 修改密码alter user 'test'@'localhost' identified with mysql_native_password by '1234';-- 删除用户drop user 'test'@'localhost';
+```
+
+##### 注意事项
+
+- 主机名可以使用 % 通配
+
+#### 权限控制
+
+常用权限：
+
+| 权限                | 说明               |
+| :------------------ | :----------------- |
+| ALL, ALL PRIVILEGES | 所有权限           |
+| SELECT              | 查询数据           |
+| INSERT              | 插入数据           |
+| UPDATE              | 修改数据           |
+| DELETE              | 删除数据           |
+| ALTER               | 修改表             |
+| DROP                | 删除数据库/表/视图 |
+| CREATE              | 创建数据库/表      |
+
+更多权限请看[权限一览表](https://dhc.pythonanywhere.com/article/public/1/#权限一览表)
+
+查询权限：
+`SHOW GRANTS FOR '用户名'@'主机名';`
+
+授予权限：
+`GRANT 权限列表 ON 数据库名.表名 TO '用户名'@'主机名';`
+
+撤销权限：
+`REVOKE 权限列表 ON 数据库名.表名 FROM '用户名'@'主机名';`
+
+##### 注意事项
+
+- 多个权限用逗号分隔
+- 授权时，数据库名和表名可以用 * 进行通配，代表所有
 
 ## 高级特性
 
@@ -675,7 +739,46 @@ INSERT INTO `brand` (name, website, worldRank) VALUES ('京东', 'www.jd.com', 3
 INSERT INTO `brand` (name, website, worldRank) VALUES ('Google', 'www.google.com', 8);
 ````
 
-### 创建外键
+### 约束
+
+分类：
+
+| 约束                    | 描述                                                     | 关键字      |
+| :---------------------- | :------------------------------------------------------- | :---------- |
+| 非空约束                | 限制该字段的数据不能为null                               | NOT NULL    |
+| 唯一约束                | 保证该字段的所有数据都是唯一、不重复的                   | UNIQUE      |
+| 主键约束                | 主键是一行数据的唯一标识，要求非空且唯一                 | PRIMARY KEY |
+| 默认约束                | 保存数据时，如果未指定该字段的值，则采用默认值           | DEFAULT     |
+| 检查约束（8.0.1版本后） | 保证字段值满足某一个条件                                 | CHECK       |
+| 外键约束                | 用来让两张图的数据之间建立连接，保证数据的一致性和完整性 | FOREIGN KEY |
+
+约束是作用于表中字段上的，可以再创建表/修改表的时候添加约束。
+
+### 常用约束
+
+| 约束条件 | 关键字         |
+| :------- | :------------- |
+| 主键     | PRIMARY KEY    |
+| 自动增长 | AUTO_INCREMENT |
+| 不为空   | NOT NULL       |
+| 唯一     | UNIQUE         |
+| 逻辑条件 | CHECK          |
+| 默认值   | DEFAULT        |
+
+````mysql
+
+create table user(
+	id int primary key auto_increment,
+	name varchar(10) not null unique,
+	age int check(age > 0 and age < 120), #check外键条件
+	status char(1) default '1',
+	gender char(1)
+);
+````
+
+
+
+#### 创建外键
 
 > **将两张表联系起来，我们可以将products中的brand_id关联到brand中的id：** 
 >
@@ -694,7 +797,7 @@ INSERT INTO `brand` (name, website, worldRank) VALUES ('Google', 'www.google.com
 >
 > ◼ **现在我们可以将products中的brand_id关联到brand中的id的值：**
 >
-> ````
+> ````sql
 > UPDATE `products` SET `brand_id` = 1 WHERE `brand` = '华为';
 > UPDATE `products` SET `brand_id` = 4 WHERE `brand` = 'OPPO';
 > UPDATE `products` SET `brand_id` = 3 WHERE `brand` = '苹果';
@@ -704,6 +807,16 @@ INSERT INTO `brand` (name, website, worldRank) VALUES ('Google', 'www.google.com
 > 
 
 #### 外键存在时更新和删除数据
+
+##### 删除/更新行为
+
+| 行为        | 说明                                                         |
+| :---------- | :----------------------------------------------------------- |
+| NO ACTION   | 当在父表中删除/更新对应记录时，首先检查该记录是否有对应外键，如果有则不允许删除/更新（与RESTRICT一致） |
+| RESTRICT    | 当在父表中删除/更新对应记录时，首先检查该记录是否有对应外键，如果有则不允许删除/更新（与NO ACTION一致） |
+| CASCADE     | 当在父表中删除/更新对应记录时，首先检查该记录是否有对应外键，如果有则也删除/更新外键在子表中的记录 |
+| SET NULL    | 当在父表中删除/更新对应记录时，首先检查该记录是否有对应外键，如果有则设置子表中该外键值为null（要求该外键允许为null） |
+| SET DEFAULT | 父表有变更时，子表将外键设为一个默认值（Innodb不支持）       |
 
 > ◼ **我们来思考一个问题：**
 >
@@ -717,9 +830,13 @@ INSERT INTO `brand` (name, website, worldRank) VALUES ('Google', 'www.google.com
 > 
 > SHOW CREATE TABLE `products`; // 查看表创建时结构
 > ALTER TABLE `products` DROP FOREIGN KEY products_idfk_1;
- # 如果修改对应的关联id需要在创建外键时使用关键字`on delete`或者`on update`的值
-> ALTER TABLE `products` ADD FOREIGN KEY (brand_id) REFERENCES brand(id) ON UPDATE CASCADE ON DELETE CASCADE;
-> ````
+如果修改对应的关联id需要在创建外键时使用关键字`on delete`或者`on update`的值
+
+````sql
+ALTER TABLE `products` ADD FOREIGN KEY (brand_id) REFERENCES brand(id) ON UPDATE CASCADE ON DELETE CASCADE;
+````
+
+
 
 #### 如何进行更新呢?
 
@@ -809,7 +926,7 @@ WHERE brand.id IS NULL;
 
 #### 右连接
 
-◼ **如果我们希望获取到的是右边所有的数据（以由表为主）：**
+◼ **如果我们希望获取到的是右边所有的数据（以右表为主）：**
 
  这个时候就表示无论左边的表中的brand_id是否有和右边表中的id对应，右边的数据都会被查询出来；
 
@@ -843,7 +960,7 @@ SELECT * FROM `products`, `brand` WHERE `products`.brand_id = `brand`.id;
 
  SQL语句一：内连接，代表的是在两张表连接时就会约束数据之间的关系，来决定之后查询的结果；
 
- SQL语句二：where条件，代表的是先计算出笛卡尔乘积，在笛卡尔乘积的数据基础之上进行where条件的帅选；
+ SQL语句二：where条件，代表的是先计算出笛卡尔乘积，在笛卡尔乘积的数据基础之上进行where条件的筛选；
 
 #### 全连接
 
@@ -919,7 +1036,7 @@ INSERT INTO `students_select_courses` (student_id, course_id) VALUES (3, 4);
 ### 查询多对多数据（一）
 
 ````sql
-# 查询所有的学生选择的所有课程
+# 查询所有的学生选择的所有课程（使用隐士连接，或则交叉连接）
 SELECT 
 stu.id studentId, stu.name studentName, cs.id courseId, cs.name courseName, cs.price coursePrice
 FROM `students` stu
@@ -1083,7 +1200,8 @@ const connection = mysql.createConnection({
 })
 
 connection.query('SELECT * FROM products', (err, results, fields) => {
-
+console.log(results, 'results'); // 表中查到的数据
+console.log(fields, 'fields'); // 表的字段名
 connection.destroy();
 })
 ````

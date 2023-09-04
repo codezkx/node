@@ -525,6 +525,10 @@ alter table emp add constraint fk_emp_dept_id foreign key(dept_id) references de
 
 更改删除/更新行为：
 `ALTER TABLE 表名 ADD CONSTRAINT 外键名称 FOREIGN KEY (外键字段) REFERENCES 主表名(主表字段名) ON UPDATE 行为 ON DELETE 行为;`
+```sql
+# CONSTRAINT 自定义外键名称，写则使用默认设置的值
+ALTER TABLE `products` ADD FOREIGN KEY (brand_id) REFERENCES brand(id) ON UPDATE CASCADE ON DELETE CASCADE; 
+```
 
 ## 多表查询
 
