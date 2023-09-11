@@ -330,14 +330,14 @@ ALTER TABLE `表名` RENAME TO `表名`;
 
 #### 表添加字段
 
-````
+````SQL
 ALTER TABLE `表名` ADD 字段名 字段类型（如：INT）;
 如： ALTER TABLE `t_users` ADD createTime TIMESTAMP;
 ````
 
 #### 修改表的字段名
 
-````
+````SQL
 ALTER TABLE `表名` CHANGE 修改字段名 修改后字段名 字段类型;
 ````
 
