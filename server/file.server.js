@@ -12,7 +12,6 @@ class FileServer {
         const [result] = await connection.execute(statement, [userId])
         return result
     }
-
 }
 
 module.exports = new FileServer();

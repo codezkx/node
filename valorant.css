@@ -1,0 +1,26 @@
+body {
+    background-color: #32CD32;
+}
+.container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 500px;
+    height: 100px;
+    padding: 16px;
+    margin: auto;
+    background-color: #FFF;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    border-radius: 5px;
+    cursor: crosshair;
+}
+
+.circle {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background-color: red;
+    border-radius: 50%;
+}
