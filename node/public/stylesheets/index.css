@@ -1,0 +1,100 @@
+.team {
+    list-style: none;
+    display: flex;
+  }
+  
+  .team > li {
+    flex: 1;
+  }
+  
+  .team-item {
+    user-select: none;
+    padding: 0 4px;
+    font-size: 16px;
+    font-weight: bold;
+    background-image: linear-gradient(to right, pink 20%, #4154d4 100%);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  button {
+    border: 1px solid transparent;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(0,0,0,.02);
+    border-radius: 4px;
+  }
+  
+  .btn-default {
+    padding: 8px 10px;
+    border-color: #d9d9d9;
+    color: rgba(0,0,0, .88);
+    background-color: #fff;
+  }
+  
+  .btn-default:hover {
+    color: #4096ff;
+    border-color: #4096ff;
+  }
+  
+  .btn-default:active {
+    color: #0958d9;
+    border-color: #0958d9;
+  }
+  
+  .upload-list {
+    display: flex;
+  }
+  
+  .upload--picture-card {
+    box-sizing: border-box;
+    display: inline-block;
+    width: 148px;
+    height: 148px;
+    line-height: 146px;
+    vertical-align: top;
+    background-color: #fbfdff;
+    border: 1px dashed #c0ccda;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  .upload-icon-plus {
+    font-size: 36px;
+    color: #8c939d;
+    font-family: element-icons !important;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    vertical-align: baseline;
+    display: inline-block;
+  }
+  
+  input {
+    cursor: pointer;
+  }
+  
+  .upload__input {
+    display: none;
+  }
+  
+  .el-upload-list__item {
+    box-sizing: border-box;
+    display: inline-flex;
+    width: 148px;
+    width: 148px;
+    padding: 0;
+    margin: 0 8px 8px 0;
+    overflow: hidden;
+    border: 1px solid #dcdfe6;
+    background-color: #fff;
+    border-radius: 6px;
+  }
+  
+  .upload-list__item-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
