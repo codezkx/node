@@ -1,0 +1,60 @@
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="icon" href="https://game.gtimg.cn/images/val/ag_w/logo.png">
+    <meta name="renderer" content="webkit" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=0"
+    />
+    <link rel="stylesheet" href="./valorant.css">
+    <title>valorant</title>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+    <!-- <section class="container">
+      <div class="circle"></div>
+    </section> -->
+    <!-- <script type="module" src="./valorant.js"></script> -->
+
+
+    <video id="video" width="300" height="200" autoplay></video>
+    <canvas id="canvas" width="300" height="200"></canvas>
+  
+    <script>
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const context = canvas.getContext("2d");
+  
+      // 获取用户媒体设备（摄像头）
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(function(stream) {
+          video.srcObject = stream;
+          video.play();
+          requestAnimationFrame(tick);
+        })
+        .catch(function(error) {
+          console.log("无法访问摄像头: " + error);
+        });
+  
+      function tick() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "dontInvert",
+          });
+          if (code) {
+            console.log("解码结果:", code.data);
+          }
+        }
+        requestAnimationFrame(tick);
+      }
+    </script>
+  </body>
+  </html>
+
+  </body>
+</html>
