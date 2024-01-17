@@ -111,9 +111,9 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
         return function httpMethod(url, data, config) {
           return this.request(Object.assign(config || {}, {
             method,
-            headers: isForm ? {
-              'Content-Type': 'multipart/form-data'
-            } : {},
+            // headers: isForm ? {
+            //   'Content-Type': 'multipart/form-data'
+            // } : {},
             url,
             data
           }));

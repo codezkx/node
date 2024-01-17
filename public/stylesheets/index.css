@@ -24,19 +24,19 @@
     border-radius: 4px;
   }
   
-  .header-btn {
+  .btn-default {
     padding: 8px 10px;
     border-color: #d9d9d9;
     color: rgba(0,0,0, .88);
     background-color: #fff;
   }
   
-  .header-btn:hover {
+  .btn-default:hover {
     color: #4096ff;
     border-color: #4096ff;
   }
   
-  .header-btn:active {
+  .btn-default:active {
     color: #0958d9;
     border-color: #0958d9;
   }

@@ -4,7 +4,7 @@ const isXHRAdapterSupported = typeof XMLHttpRequest !== 'undefined'
 const xmlHttp = isXHRAdapterSupported && function (config) {
     return new Promise((resolve, reject) => {
         const method = (config.method || 'GET').toUpperCase();
-        const timeout = config.setTimeout || 0;
+        const timeout = config.timeout || 0;
         const responseType = config.responseType || 'json';
         let requestData = config.data || {};
         let _url = config.url;
@@ -29,11 +29,11 @@ const xmlHttp = isXHRAdapterSupported && function (config) {
             xhr.open(method, _url, true);
         }
 
-        xhr.timeout = config.timeout;
+        xhr.timeout = config.timeout || timeout;
 
-        xhr.setRequestHeader('Accept', 'application/json, text/plain, multipart/form-data, */*');
-        xhr.setRequestHeader('content-type', 'application/json, multipart/form-data, */*');
-        // xhr.setRequestHeader('content-disposition', 'form-data');
+        xhr.setRequestHeader('Accept', '*/*');
+        xhr.setRequestHeader('content-disposition', 'form-data; name="image"; filename="1.png"');
+        xhr.setRequestHeader('content-type', 'application/json, multipart/form-data, image/png');
         // 设置请求头
         const headers = Object.keys(config.headers || {});
         if (utils.realArray(headers)) {
@@ -84,9 +84,8 @@ const xmlHttp = isXHRAdapterSupported && function (config) {
                 return;
             }
             // 在下一个事件循环（tick）中调用 onloadend 方法。
-            setTimeout()
+            // setTimeout()
         }
-        console.log(config.timeout, 'config.setTimeout')
         // setTimeout(function () {
         //     if (xhr.readyState !== 4) {
         //         xhr.abort();
@@ -98,7 +97,6 @@ const xmlHttp = isXHRAdapterSupported && function (config) {
             xhr = null;
         }
         // xhr.send(JSON.stringify(requestData || null));
-        // console.log(requestData.file, 'requestData')
         xhr.send(requestData);
 
     })
