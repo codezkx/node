@@ -3,7 +3,10 @@ const path = require('path');
 
 const routers = {
   upload: {
-    url: '/file',
+    url: "/file",
+  },
+  test: {
+    url: "/test",
   }
 }
 // 注册子路由
