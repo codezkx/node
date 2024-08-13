@@ -1,6 +1,6 @@
 const path = require('path');
 
-const _basename = process.cwd() + '00_path.js';
+const _basename = process.cwd();
 /* 
     path.basename
         path <string>
@@ -12,12 +12,14 @@ const _basename = process.cwd() + '00_path.js';
     suffix： 是区分大小写的
 */
 const baseName = path.basename(_basename);
-const baseName1 = path.basename(_basename, '.js');
+const baseName1 = path.basename(_basename, '/1');
 const baseName2 = path.basename(_basename, '.JS');
+const baseName3 = path.basename('common.ts', '.ts');
 
 console.log(baseName);
 console.log(baseName1);
 console.log(baseName2);
+console.log(baseName3);
 
 // day0300_path.js
 // day0300_path
