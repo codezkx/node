@@ -4,7 +4,7 @@ const secret = getPrivateKeyPem();
 
 // 设置token过期时间
 const options = {
-  expiresIn: '5s', // 可以是数字（单位为秒）或字符串（如 '2 hours'、'1d' 等）
+  expiresIn: '1000s', // 可以是数字（单位为秒）或字符串（如 '2 hours'、'1d' 等）
   algorithm: 'RS256' // 使用RAS非对称加密进行签名
 };
 

@@ -1,9 +1,10 @@
-function successMessage(data) {
+function successMessage(data, success = true, err) {
   return {
     message: 'ok',
-    success: true,
+    success,
     code: 0,
-    data
+    data,
+    err
   }
 }
 
