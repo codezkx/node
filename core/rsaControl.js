@@ -1,41 +1,82 @@
-const NodeRSA = require('node-rsa');
+const crypto = require('crypto');
 const path = require('path');
-const fs = require('fs').promises
+const fs = require('fs')
 const cerPath = path.join(process.cwd(), './auth');
 
-async function generateKeys() {
-    //实例化 b 秘钥位 bit 越大越安全 256 , 512, 1024 - 4096
-    const newKey = new NodeRSA({ b: 512 });
-    //设置秘钥模式
-    newKey.setOptions({ encryptionScheme: 'pkcs1' });
-    const public_key = newKey.exportKey('pkcs8-public');
-    const private_key = newKey.exportKey('pkcs8-private');
-    await fs.writeFile(path.join(cerPath, 'public.cer'), public_key);
-    await fs.writeFile(path.join(cerPath, 'private.cer'), private_key);
+const createKeys = () => {
+    // 生成新的RSA密钥对
+    const {publicKey, privateKey} = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+    });
+    // 将公钥转换为PEM格式的字符串
+    const publicKeyPem = publicKey.export({type: 'pkcs1', format: 'pem'}).toString();
+    const privateKeyPem = privateKey.export({type: 'pkcs1', format: 'pem'}).toString();
+    return {publicKeyPem, privateKeyPem};
 }
 
-//  加密
-async function encrypt(plain) {
-    let public_key = await fs.readFile(path.join(cerPath, 'public.cer'));
-    const nodersa = new NodeRSA(public_key);
-    prikey.setOptions({ encryptionScheme: 'pkcs1' });
-    //调用加密方法  plain是需要加密的明文 加密生成的格式
-    const encrypted = nodersa.encrypt(plain, 'base64');
-    return encrypted
+const getPubKeyPem = () => {
+    // 读取公钥文件
+    const filepath = getFilepath('public.pem');  // D:\projects\node\core\auth\public.pem
+    const publicKey = fs.readFileSync(filepath, 'utf8');
+    if (!publicKey) {
+        const { publicKeyPem, privateKeyPem } = createKeys();
+        setPubKeyPem(publicKeyPem);
+        setPrivateKeyPem(privateKeyPem);
+        return publicKeyPem
+    }
+    return publicKey
 }
 
-// 解密
-async function decrypt(cipher) {
-    let private_key = await fs.readFile(path.join(cerPath, 'private.cer'));
-    //私钥实例化 NodeRSA
-    let prikey = new NodeRSA(private_key);
-    //设置 模式 scheme pkcs1
-    prikey.setOptions({ encryptionScheme: 'pkcs1' });
-    return prikey.decrypt(cipher, 'utf8');
+const getPrivateKeyPem = () => {
+    // 读取私钥文件
+    const filepath = getFilepath('private.pem');
+    const privateKey = fs.readFileSync(filepath, 'utf8');
+    if (!privateKey) {
+        const { publicKeyPem, privateKeyPem } = createKeys();
+        setPubKeyPem(publicKeyPem);
+        setPrivateKeyPem(privateKeyPem);
+    }
+    return privateKey;
 }
-generateKeys()
+
+const setPubKeyPem = (pubKey) => {
+    // 写入公钥文件
+    const filepath = getFilepath('public.pem')
+    fs.writeFileSync(filepath, pubKey);
+}
+
+const setPrivateKeyPem = (priKey) => {
+    const filepath = getFilepath('private.pem');
+    fs.writeFileSync(filepath, priKey)
+}
+
+const getFilepath = (fileName) => {
+    const filepath = path.join(process.cwd(), 'auth', fileName);
+    return filepath;
+}
+
+function privateDecrypt(encrypted) {
+    try {
+        let decryptedBuffer = null
+        const privateKeyPem = getPrivateKeyPem();
+        const privateKey = crypto.createPrivateKey(privateKeyPem)
+        const encryptedData = Buffer.from(encrypted, 'base64');
+        // 使用私钥进行解密
+        decryptedBuffer = crypto.privateDecrypt(
+            {
+              key: privateKey,
+              padding: crypto.constants.RSA_PKCS1_PADDING, // 根据加密时的填充方式选择
+            },
+            encryptedData
+          );
+        return JSON.parse(decryptedBuffer.toString('utf8'))
+    } catch(err) {
+        console.log(err)
+    }
+}
 
 module.exports = {
-    encrypt,
-    decrypt,
+    getPubKeyPem,
+    getPrivateKeyPem,
+    privateDecrypt
 }

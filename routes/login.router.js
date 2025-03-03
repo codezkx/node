@@ -1,0 +1,39 @@
+const express = require('express');
+const { privateDecrypt } = require('../core/rsaControl');
+const { generateToken, generateReFreshToken,authenticateToken } = require('../middleware/jwt.js');
+const { successMessage, errMessage } = require('../core/utils/resMessage.js');
+const router = express.Router();
+
+// 无感刷新token,authenticateToken用上之前写的鉴权中间件,鉴别token是否有效
+router.get('/refreshToken', authenticateToken, (req, res) => {
+  const { username, password } = req.user;
+  // 新token
+  const token = generateToken({username});
+  const refreshToken = generateReFreshToken({username});
+  res.send(
+    successMessage({
+      token,
+      refreshToken
+    })
+  )
+})
+
+/* GET users listing. */
+router.post('/login', function (req, res, next) {
+  const {username, password} = privateDecrypt(req.body.encrypted);
+  if (username === 'admin' && password === 'admin123') {
+    const token = generateToken({username}) // 签发token的时候把用户名带上
+    const refreshToken = generateReFreshToken({username}) // 登录时将refreshToken也返回
+    res.send(successMessage({
+      token,
+      refreshToken
+    }));
+    return
+  }
+  res.send(errMessage({
+    data: '',
+    err: "没有找到用户",
+  }));
+});
+
+module.exports = router;

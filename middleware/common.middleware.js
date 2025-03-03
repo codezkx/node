@@ -8,7 +8,7 @@ const baseUrl = process.cwd()
 
 module.exports = function (app) {
     app.use(cors({
-        "origin": true, //true 设置为 req.origin.url
+        "origin": "*", //true 设置为 req.origin.url
         "methods": "GET,HEAD,PUT,PATCH,POST,DELETE", //容许跨域的请求方式
         "allowedHeaders": "x-requested-with,Authorization,token, content-type, content-disposition", //跨域请求头
         "preflightContinue": false, // 是否通过next() 传递options请求 给后续中间件 

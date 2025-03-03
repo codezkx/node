@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
-const multer = require("Multer");
+const multer = require("multer");
 const router = express.Router();
 const { uploadPath, maxFileSize } = require('../config')
 const fileController = require('../controller/file.controller')
@@ -28,6 +28,9 @@ const upload = multer({
 })
 
 /* GET users listing. */
+router.get('./getUploadDetial', () => {
+  
+})
 router.post('/upload', upload.any(), fileController.create);
 router.get('/images/:id', fileController.getImage);
 

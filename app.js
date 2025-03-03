@@ -4,13 +4,15 @@ const path = require('path');
 
 const commonMiddleware = require('./middleware/common.middleware'); // 公共中间件
 const registerRouters = require('./routes'); // 路由
+const { send } = require('process');
+const database = require('./plugins/mysql/database');
+
 
 require('./plugins/mysql/database');
 
 const app = express();
 
 commonMiddleware(app)
-
 registerRouters(app);
 
 // catch 404 and forward to error handler
