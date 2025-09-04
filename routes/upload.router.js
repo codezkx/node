@@ -25,13 +25,14 @@ router.get("/getUploadDetial", (req, res) => {
 
   // 判断文件路径是否存在
   const isUploaded = fs.existsSync(filePath);
+
   if (isUploaded) {
     // 如果存在则不需要在上传了
     data = { ...data, isUploaded };
   }
 
   const isUploading = fs.existsSync(dirPath);
-  if (isUploading) {
+  if (isUploading) {  
     // 读取目录的内容(就是返回一个文件名列表)
     list = fs.readdirSync(dirPath);
     list = sortFiles(list);
@@ -85,6 +86,10 @@ router.get("/mergeFile", async (req, res) => {
   res.send(successMessage(null));
 });
 
+router.get('/verify', (req, res) => {
+  
+})
+
 async function isSameFile(filePath, md5) {
   let currMd5 = await getMd5byFile(filePath);
   return currMd5 === md5;
@@ -114,6 +119,7 @@ function mergeFile(dirPath, filePath) {
   let list = fs.readdirSync(dirPath);
   // 对其目录下的文件进行排序
   list = sortFiles(list);
+  console.log(filePath)
   list.forEach((item) => {
     // 生成文件路径
     const chunkPath = path.join(dirPath, item);
@@ -136,7 +142,9 @@ function createDir(dirPath) {
 }
 
 function getDirPathAndFilePath(md5, suffix) {
+  // 获取文件目录
   const dirPath = path.join(UPLOAD_DIR, `./${md5}`);
+  // 获取文件路径
   const filePath = path.join(UPLOAD_DIR, `./${md5}.${suffix}`);
   return { dirPath, filePath };
 }

@@ -9,7 +9,8 @@ router.get('/publicKey', function (req, res, next) {
   res.send({
     data: {pub_key},
     err: null,
-    success: true 
+    success: true,
+    code: 0
   });
 });
 
