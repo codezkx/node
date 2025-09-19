@@ -5,7 +5,7 @@ const multer = require("multer");
 const crypto = require("crypto");
 const multiparty = require("multiparty")
 const router = express.Router();
-
+const { authenticateToken } = require('../middleware/jwt.js');
 const { successMessage, errMessage } = require('../core/utils/resMessage.js')
 
 
@@ -17,7 +17,7 @@ const UPLOAD_DIR = path.resolve(process.cwd(), "./public", "./file"); // 完整�
  * @param {*} suffix 文件后缀
  * @return {*} list 已上传文件片段名列表
  */
-router.get("/getUploadDetial", (req, res) => {
+router.get("/getUploadDetial", authenticateToken, (req, res) => {
   const { md5, suffix } = req.query;
   let list = [];
   let data = { isUploaded: false, list };
@@ -30,7 +30,7 @@ router.get("/getUploadDetial", (req, res) => {
     // 如果存在则不需要在上传了
     data = { ...data, isUploaded };
   }
-
+  console.log(filePath, dirPath)
   const isUploading = fs.existsSync(dirPath);
   if (isUploading) {  
     // 读取目录的内容(就是返回一个文件名列表)
@@ -49,7 +49,7 @@ router.get("/getUploadDetial", (req, res) => {
  * @param {*} suffix 文件后缀
  * @param {*} file 文件片段内容
  */
-router.post("/upload", (req, res) => {
+router.post("/upload", authenticateToken, (req, res) => {
   const form = new multiparty.Form();
   let isSuccess = false;
   let err = null;
@@ -70,7 +70,7 @@ router.post("/upload", (req, res) => {
  * @param {*} md5 完整文件唯一标识
  * @param {*} suffix 文件后缀
  */
-router.get("/mergeFile", async (req, res) => {
+router.get("/mergeFile", authenticateToken, async (req, res) => {
   const { md5, suffix } = req.query;
   const { dirPath, filePath } = getDirPathAndFilePath(md5, suffix);
 
@@ -115,11 +115,11 @@ function getMd5byFile(filePath) {
 }
 
 function mergeFile(dirPath, filePath) {
+  console.log(filePath)
   // 读取目录下的所有文件
   let list = fs.readdirSync(dirPath);
   // 对其目录下的文件进行排序
   list = sortFiles(list);
-  console.log(filePath)
   list.forEach((item) => {
     // 生成文件路径
     const chunkPath = path.join(dirPath, item);
