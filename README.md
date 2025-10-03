@@ -1,6 +1,6 @@
 # node
-node 基础学习
 
+node 基础学习
 
 Node.js有很多强大的内置API,掌握它们是学习Node.js的基石。我推荐学习的基本API文档如下:
 
@@ -23,3 +23,34 @@ HTTP:用于创建Web服务器和客户端。文档地址:https://nodejs.org/dist
 缓冲区:用于操作二进制数据。文档地址:https://nodejs.org/dist/latest-v12.x/docs/api/buffer.html
 
 子进程:用于生成子进程,执行外部程序。文档地址:https://nodejs.org/dist/latest-v12.x/docs/api/child_process.html
+
+
+├─ src/
+│  ├─ app.ts                  # 🟡 应用入口
+│  ├─ config/                 # ⚙️ 配置相关（数据库、全局配置等）
+│  │  ├─ index.ts
+│  │  └─ mysql.ts
+│  ├─ routes/                 # 🧭 路由层
+│  │  ├─ index.ts
+│  │  └─ user.route.ts
+│  ├─ controllers/           # 🧠 控制器层（接收请求，调用服务）
+│  │  ├─ index.ts
+│  │  └─ user.controller.ts
+│  ├─ services/              # 🛠️ 服务层（业务逻辑）
+│  │  ├─ index.ts
+│  │  └─ user.service.ts
+│  ├─ models/                # 🗄️ 数据模型（数据库操作）
+│  │  ├─ index.ts
+│  │  └─ user.model.ts
+│  ├─ middlewares/           # 🧩 中间件（权限、日志、错误处理）
+│  │  ├─ auth.middleware.ts
+│  │  └─ error.middleware.ts
+│  ├─ utils/                 # 📌 公共工具函数
+│  │  ├─ logger.ts
+│  │  └─ helper.ts
+│  ├─ types/                 # 📝 TypeScript 类型定义
+│  │  └─ express.d.ts
+│  ├─ views/                 # 🧰 模板引擎文件（例如 EJS、Pug）
+│  │  └─ index.ejs
+│  └─ websocket/             # 🌐 WebSocket 模块（如果用）
+│     └─ index.ts

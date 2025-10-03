@@ -1,6 +1,6 @@
 const express = require('express');
-const { successMessage } = require('../core/utils/resMessage.js');
-const { authenticateToken } = require('../middleware/jwt.js');
+const { successMessage } = require('../utils/rsaControl.js');
+const { authenticateToken } = require('../middlewares/jwt.js');
 
 const router = express.Router();
 

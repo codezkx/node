@@ -1,4 +1,4 @@
-const fileServer = require('../server/file.server');
+const fileServer = require('../services/file.server');
 
 class FileController {
     async create(req, res, next) {

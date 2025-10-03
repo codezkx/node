@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { getPrivateKeyPem } = require('../core/rsaControl');
+const { getPrivateKeyPem } = require('../utils/rsaControl');
 const secret = getPrivateKeyPem();
 
 // 设置token过期时间

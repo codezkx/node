@@ -2,7 +2,7 @@ const  createError = require('http-errors');
 const  express = require('express');
 const path = require('path');
 
-const commonMiddleware = require('./middleware/common.middleware'); // 公共中间件
+const commonMiddleware = require('./middlewares/common.middleware'); // 公共中间件
 const registerRouters = require('./routes'); // 路由
 const { send } = require('process');
 const database = require('./plugins/mysql/database');

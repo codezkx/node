@@ -1,7 +1,7 @@
 const express = require('express');
-const { privateDecrypt } = require('../core/rsaControl');
-const { generateToken, generateReFreshToken,authenticateToken } = require('../middleware/jwt.js');
-const { successMessage, errMessage } = require('../core/utils/resMessage.js');
+const { privateDecrypt } = require('../utils/rsaControl');
+const { generateToken, generateReFreshToken,authenticateToken } = require('../middlewares/jwt.js');
+const { successMessage, errMessage } = require('../utils/resMessage.js');
 const router = express.Router();
 
 // 无感刷新token,authenticateToken用上之前写的鉴权中间件,鉴别token是否有效

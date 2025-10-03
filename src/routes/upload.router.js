@@ -5,8 +5,8 @@ const multer = require("multer");
 const crypto = require("crypto");
 const multiparty = require("multiparty")
 const router = express.Router();
-const { authenticateToken } = require('../middleware/jwt.js');
-const { successMessage, errMessage } = require('../core/utils/resMessage.js')
+const { authenticateToken } = require('../middlewares/jwt.js');
+const { successMessage, errMessage } = require('../utils/resMessage.js')
 
 
 const UPLOAD_DIR = path.resolve(process.cwd(), "./public", "./file"); // 完整文件存放在file下,每个文件的片存在文件md5命名的文件夹下

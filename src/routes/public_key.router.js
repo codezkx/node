@@ -1,5 +1,5 @@
 const express = require('express');
-const { getPubKeyPem } = require('../core/rsaControl');
+const { getPubKeyPem } = require('../utils/rsaControl');
 const router = express.Router();
 
 /* GET users listing. */
