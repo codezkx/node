@@ -5,11 +5,11 @@ import type { Express, Request, Response, NextFunction, Errback } from "express"
 import commonMiddleware from "./middlewares/common.middleware.ts";
 import registerRouters from "./routes/index.ts";
 
-// import('./plugins/mysql/database.js');
+import('./plugins/mysql/database.ts');
 
 const app: Express = express();
 
-commonMiddleware(app)
+commonMiddleware(app);
 await registerRouters(app);
 
 // catch 404 and forward to error handler

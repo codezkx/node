@@ -1,10 +1,10 @@
-import config from './confjg.js'
-import mysql2 from 'mysql2'
+import mysql from 'mysql2'
+import config from './confjg.ts'
 
 // 池化
 const pool = mysql.createPool({
     host: config.MYSQL_HOST,
-    port: config.MYSQL_PORT,
+    port: config.MYSQL_PORT!,
     user: config.MYSQL_USER,
     password: config.MYSQL_PASSWORD,
     database: config.MYSQL_DATABASE,
