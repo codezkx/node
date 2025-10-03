@@ -8,9 +8,9 @@ const createKeys = () => {
     const {publicKey, privateKey} = crypto.generateKeyPairSync('rsa', {
         modulusLength: 2048,
     });
-    // 将公钥转换为PEM格式的字符串
-    const publicKeyPem = publicKey.export({type: 'pkcs1', format: 'pem'}).toString();
-    const privateKeyPem = privateKey.export({type: 'pkcs1', format: 'pem'}).toString();
+    // 将公钥转换为PEM格式的字符串   node 版本改变这里可能还会变
+    const publicKeyPem = publicKey.export({type: 'spki', format: 'pem'}).toString();
+    const privateKeyPem = privateKey.export({type: 'pkcs8', format: 'pem'}).toString();
     return {publicKeyPem, privateKeyPem};
 }
 
@@ -65,7 +65,9 @@ function privateDecrypt(encrypted) {
         decryptedBuffer = crypto.privateDecrypt(
             {
               key: privateKey,
-              padding: crypto.constants.RSA_PKCS1_PADDING, // 根据加密时的填充方式选择
+            //   padding: crypto.constants.RSA_PKCS1_PADDING, // 根据加密时的填充方式选择 node 22版本不支持
+              padding: crypto.constants.RSA_PKCS1_OAEP_PADDING, // 根据加密时的填充方式选择
+              oaepHash: 'sha256',
             },
             encryptedData
           );

@@ -21,6 +21,7 @@ router.get('/refreshToken', authenticateToken, (req, res) => {
 /* GET users listing. */
 router.post('/login', function (req, res, next) {
   const {username, password} = privateDecrypt(req.body.encrypted);
+  console.log(username, password)
   if (username === 'admin' && password === 'admin123') {
     const token = generateToken({username}) // 签发token的时候把用户名带上
     const refreshToken = generateReFreshToken({username}) // 登录时将refreshToken也返回

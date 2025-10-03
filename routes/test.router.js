@@ -1,12 +1,18 @@
 const express = require('express');
-const { getPubKeyPem } = require('../core/rsaControl');
-const { successMessage, errMessage } = require('../core/utils/resMessage.js');
+const { successMessage } = require('../core/utils/resMessage.js');
 const { authenticateToken } = require('../middleware/jwt.js');
 
 const router = express.Router();
 
+const sleep = (delay) => {
+    const now = Date.now();
+    while( Date.now() - now < delay ) {
+
+    }
+}
 /* GET users listing. */
 router.get('/testApi1', authenticateToken, function (req, res, next) {
+
   res.send(successMessage('你好我是测试1'));
 });
 
