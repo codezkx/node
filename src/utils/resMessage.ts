@@ -1,4 +1,4 @@
-function successMessage(data, success = true, err) {
+function successMessage<T extends any>(data: T, success = true, err?: any) {
   return {
     message: 'ok',
     success,
@@ -8,7 +8,7 @@ function successMessage(data, success = true, err) {
   }
 }
 
-function errMessage(data, err) {
+function errMessage<T extends any>(data: T, err?: any) {
   return {
     message: 'ok',
     success: false,
@@ -18,7 +18,7 @@ function errMessage(data, err) {
   }
 }
 
-module.exports = {
+export {
   successMessage,
   errMessage
 }

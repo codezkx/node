@@ -1,5 +1,9 @@
-const jwt = require('jsonwebtoken');
-const { getPrivateKeyPem } = require('../utils/rsaControl');
+import jwt from 'jsonwebtoken';
+import { getPrivateKeyPem } from '../utils/rsaControl.ts';
+
+import type { Request, Response, NextFunction } from "express";
+import type { User } from '../types/type';
+
 const secret = getPrivateKeyPem();
 
 // 设置token过期时间
@@ -14,29 +18,28 @@ const refreshOptions = {
 }
 
 // 生成并签发JWT令牌
-function generateToken(user) {
+function generateToken(user: User) {
   const payload = { username: user.username };
   return jwt.sign(payload, secret, options);
 }
 
-function generateReFreshToken(user) {
+function generateReFreshToken(user: User) {
   const payload = {username: user.username};
   return jwt.sign(payload, secret, refreshOptions);
 }
 
 // 一个中间件,校验token时间
-function authenticateToken(req, res, next) {
+function authenticateToken(req: Request, res: Response, next: NextFunction) {
   if (['/login', '/getPubKey'].includes(req.url)) { // 登录和获取密钥不校验token
     next()
   }
   const authHeader = req.headers['authorization'];
   if (authHeader) {
-    const token = authHeader.split(' ')[1]  // 获取Bearer后面的token值
+    const token = authHeader.split(' ')[1]!  // 获取Bearer后面的token值
     try {
       const decoded = jwt.verify(token, secret); // 使用密钥验证Token
       req.user = decoded; // 将解码后的用户信息添加到req对象以便后续路由使用
       next(); // 如果验证通过，继续执行下一个中间件或路由处理程序
-
     }  catch (err) {
       return res.status(401).json({ message: 'Unauthorized: Invalid token.' });
     }
@@ -45,12 +48,8 @@ function authenticateToken(req, res, next) {
   }
 }
 
-module.exports = {
+export {
   generateToken,
   authenticateToken,
   generateReFreshToken
 };
-
-
-
-

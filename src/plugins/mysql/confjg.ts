@@ -1,8 +1,8 @@
-const dotenv = require('dotenv');
+import dotenv from ('dotenv');
 
 dotenv.config();
 
-module.exports = {
+export default {
     APP_HOST,
     APP_PORT,
     MYSQL_HOST,

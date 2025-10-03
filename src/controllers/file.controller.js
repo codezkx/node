@@ -1,4 +1,4 @@
-const fileServer = require('../services/file.server');
+import fileServer from ('../services/file.server.js');
 
 class FileController {
     async create(req, res, next) {
@@ -39,4 +39,4 @@ class FileController {
 
 }
 
-module.exports = new FileController();
+export default new FileController();

@@ -1,6 +1,7 @@
-const crypto = require('crypto');
-const path = require('path');
-const fs = require('fs')
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+
 const cerPath = path.join(process.cwd(), './auth');
 
 const createKeys = () => {
@@ -39,23 +40,23 @@ const getPrivateKeyPem = () => {
     return privateKey;
 }
 
-const setPubKeyPem = (pubKey) => {
+const setPubKeyPem = (pubKey: string) => {
     // 写入公钥文件
     const filepath = getFilepath('public.pem')
     fs.writeFileSync(filepath, pubKey);
 }
 
-const setPrivateKeyPem = (priKey) => {
+const setPrivateKeyPem = (priKey: string) => {
     const filepath = getFilepath('private.pem');
     fs.writeFileSync(filepath, priKey)
 }
 
-const getFilepath = (fileName) => {
+const getFilepath = (fileName: string) => {
     const filepath = path.join(process.cwd(), 'auth', fileName);
     return filepath;
 }
 
-function privateDecrypt(encrypted) {
+function privateDecrypt(encrypted: string) {
     try {
         let decryptedBuffer = null
         const privateKeyPem = getPrivateKeyPem();
@@ -77,7 +78,7 @@ function privateDecrypt(encrypted) {
     }
 }
 
-module.exports = {
+export {
     getPubKeyPem,
     getPrivateKeyPem,
     privateDecrypt

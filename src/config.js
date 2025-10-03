@@ -1,6 +1,6 @@
-const path = require('path');
+import path from "path";
 
-module.exports = {
+export default {
     host: '127.0.0.1',
     root: process.cwd(),
     port: 3000,

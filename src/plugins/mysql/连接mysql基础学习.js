@@ -1,5 +1,5 @@
-const mysql = require('mysql2');
-const config = require('./confjg');
+import mysql2 from ('mysql2');
+import config from ('./confjg.js');
 
 const pool = mysql.createPool({
     host: config.MYSQL_HOST,
@@ -72,4 +72,4 @@ const pool = mysql.createPool({
 // });
 // console.log(query.sql); // INSERT INTO posts SET `id` = 1, `title` = 'Hello MySQL'
 
-module.exports = {}
+export default {}

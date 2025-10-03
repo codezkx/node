@@ -1,5 +1,5 @@
-const mysql = require('mysql2');
-const config = require('./confjg');
+import config from './confjg.js'
+import mysql2 from 'mysql2'
 
 // 池化
 const pool = mysql.createPool({
@@ -35,4 +35,4 @@ pool.on('connection', function (connection) {
 // });
 
 
-module.exports = pool.promise();
+export default pool.promise();

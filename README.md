@@ -25,6 +25,8 @@ HTTP:用于创建Web服务器和客户端。文档地址:https://nodejs.org/dist
 子进程:用于生成子进程,执行外部程序。文档地址:https://nodejs.org/dist/latest-v12.x/docs/api/child_process.html
 
 
+## 项目目录
+
 ├─ src/
 │  ├─ app.ts                  # 🟡 应用入口
 │  ├─ config/                 # ⚙️ 配置相关（数据库、全局配置等）
@@ -54,3 +56,22 @@ HTTP:用于创建Web服务器和客户端。文档地址:https://nodejs.org/dist
 │  │  └─ index.ejs
 │  └─ websocket/             # 🌐 WebSocket 模块（如果用）
 │     └─ index.ts
+
+
+
+
+## **常见 Git 提交类型（推荐使用「约定式提交 Conventional Commits」）**
+
+| 类型               | 说明                                                 |
+| ------------------ | ---------------------------------------------------- |
+| **feat**     | ✨ 新功能（feature）                                 |
+| **fix**      | 🐛 修复 bug                                          |
+| **docs**     | 📝 仅修改文档，比如 README                           |
+| **style**    | 💅 代码格式修改（不影响功能，比如空格、缩进、分号）  |
+| **refactor** | 🧠 代码重构（既不是新功能，也不是 bug 修复）         |
+| **perf**     | ⚡ 性能优化                                          |
+| **test**     | ✅ 添加或修改测试                                    |
+| **build**    | 🏗️ 构建流程、依赖相关修改（npm、webpack、vite 等） |
+| **ci**       | 🤖 CI 配置修改（GitHub Actions、Jenkins 等）         |
+| **chore**    | 🔧 其他不修改 src 或测试的杂项，比如改脚本           |
+| **revert**   | ⏪ 回滚上一次提                                      |

@@ -1,4 +1,5 @@
-const connection = require('../plugins/mysql/database');
+import connection from '../plugins/mysql/database.js';
+
 
 class FileServer {
     async create({ id, name, url, size, mimetype, user_id }) {
@@ -14,4 +15,4 @@ class FileServer {
     }
 }
 
-module.exports = new FileServer();
+export default new FileServer();

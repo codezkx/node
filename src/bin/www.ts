@@ -3,10 +3,15 @@
 /**
  * Module dependencies.
  */
+import createDebug from "debug";
+import http from "http";
+import app from "../app.ts";
 
-var app = require('../app');
-var debug = require('debug')('node:server');
-var http = require('http');
+const debug = createDebug('node:server');
+
+// var app = require('../app');
+// var debug = require('debug')('node:server');
+// var http = require('http');
 
 /**
  * Get port from environment and store in Express.

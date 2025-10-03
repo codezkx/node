@@ -1,6 +1,6 @@
 "use strict";
 
-var mysql = require('mysql2');
+import mysql from 'mysql2';
 
 var connection = mysql.createConnection({
   host: 'localhost',
@@ -23,4 +23,4 @@ connection.query('SELECT * FROM brand', function (err, results, fields) {
 
   connection.destroy();
 });
-module.exports = {};
+export default {};

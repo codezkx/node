@@ -1,12 +1,12 @@
-const path = require('path')
-const express = require('express');
-const cors = require('cors')
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+import path from "path";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
 
 const baseUrl = process.cwd()
 
-module.exports = function (app) {
+export default function (app) {
     app.use(cors({
         "origin": "*", //true 设置为 req.origin.url
         "methods": "GET,HEAD,PUT,PATCH,POST,DELETE", //容许跨域的请求方式

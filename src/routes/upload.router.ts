@@ -1,15 +1,14 @@
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
-const multer = require("multer");
-const crypto = require("crypto");
-const multiparty = require("multiparty")
-const router = express.Router();
-const { authenticateToken } = require('../middlewares/jwt.js');
-const { successMessage, errMessage } = require('../utils/resMessage.js')
-
+import express, {type Router, type Request}  from 'express';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+import multiparty from 'multiparty';
+import { authenticateToken } from '../middlewares/jwt.ts';
+import { successMessage, errMessage } from '../utils/resMessage.ts';
 
 const UPLOAD_DIR = path.resolve(process.cwd(), "./public", "./file"); // 完整文件存放在file下,每个文件的片存在文件md5命名的文件夹下
+
+const router: Router = express.Router();
 
 /**
  * @message: 检查文件之前上传情况: 未上传,上传一部分,已上传
@@ -19,7 +18,7 @@ const UPLOAD_DIR = path.resolve(process.cwd(), "./public", "./file"); // 完整�
  */
 router.get("/getUploadDetial", authenticateToken, (req, res) => {
   const { md5, suffix } = req.query;
-  let list = [];
+  let list: string[] = [];
   let data = { isUploaded: false, list };
   const { filePath, dirPath } = getDirPathAndFilePath(md5, suffix);
 
@@ -52,7 +51,7 @@ router.get("/getUploadDetial", authenticateToken, (req, res) => {
 router.post("/upload", authenticateToken, (req, res) => {
   const form = new multiparty.Form();
   let isSuccess = false;
-  let err = null;
+  let err: any = null;
 
   form.parse(req, async (error, fields, files) => {
     if (error) {
@@ -182,4 +181,4 @@ function sortFiles(list) {
   return list;
 }
 
-module.exports = router;
+export default router;

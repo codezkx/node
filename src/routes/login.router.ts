@@ -1,13 +1,15 @@
-const express = require('express');
-const { privateDecrypt } = require('../utils/rsaControl');
-const { generateToken, generateReFreshToken,authenticateToken } = require('../middlewares/jwt.js');
-const { successMessage, errMessage } = require('../utils/resMessage.js');
-const router = express.Router();
+import express, {type Router, type Request}  from 'express';
+import { privateDecrypt } from '../utils/rsaControl.ts';
+import { generateToken, generateReFreshToken,authenticateToken } from '../middlewares/jwt.ts';
+import { successMessage, errMessage } from '../utils/resMessage.ts';
+// import type { RequestConfig } from '../types/type.d.ts';
+
+const router: Router = express.Router();
 
 // 无感刷新token,authenticateToken用上之前写的鉴权中间件,鉴别token是否有效
 router.get('/refreshToken', authenticateToken, (req, res) => {
   const { username, password } = req.user;
-  // 新token
+  // 新tokenw
   const token = generateToken({username});
   const refreshToken = generateReFreshToken({username});
   res.send(
@@ -29,7 +31,7 @@ router.post('/login', function (req, res, next) {
       token,
       refreshToken
     }));
-    return
+    
   }
   res.send(errMessage({
     data: '',
@@ -37,4 +39,4 @@ router.post('/login', function (req, res, next) {
   }));
 });
 
-module.exports = router;
+export default router;

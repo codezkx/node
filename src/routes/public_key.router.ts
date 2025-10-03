@@ -1,6 +1,7 @@
-const express = require('express');
-const { getPubKeyPem } = require('../utils/rsaControl');
-const router = express.Router();
+import express, { type Router } from 'express';
+import { getPubKeyPem } from '../utils/rsaControl.ts';
+
+const router: Router = express.Router();
 
 /* GET users listing. */
 router.get('/publicKey', function (req, res, next) {
@@ -14,4 +15,4 @@ router.get('/publicKey', function (req, res, next) {
   });
 });
 
-module.exports = router;
+export default router;

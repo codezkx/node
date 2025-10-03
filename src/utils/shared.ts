@@ -7,6 +7,6 @@ const realArray = (values) => {
   return values.length > 0
 }
 
-module.exports = {
+export default {
     realArray
 }
