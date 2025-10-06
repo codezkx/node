@@ -10,7 +10,8 @@
     "module": "ESNext",
     "target": "esnext",
     "moduleResolution": "node",
-    "types": [],
+    "types": ["node", "express"],
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -44,5 +45,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src"]
+  "include": ["src", "./src/types", "./src/types/*/**.d.ts", "src/globals.d.ts"]
 }

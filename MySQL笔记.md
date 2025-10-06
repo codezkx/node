@@ -154,15 +154,19 @@
 
 ## MySQL的连接操作
 
+### 开启MySQL服务
+
+> net start MySQL80
+
+### 暂停MySQL服务
+
+> net stop MySQL80 暂停mysql（或则MySQL  可以查看服务里面的是什么名字运行， 还有一个注意点就是有时候需要管理员权限执行才能成功）
+
 ### 启动MySql
 
 > mysql -uroot -p 启动mysql
 >
 > show global variables like 'port' // 查看port
-
-### 暂停
-
-> net stop MySQL80 暂停mysql（或则MySQL  可以查看服务里面的是什么名字运行， 还有一个注意点就是有时候需要管理员权限执行才能成功）
 
 ### 查看数据库
 
@@ -839,9 +843,9 @@ ALTER TABLE `products` ADD FOREIGN KEY (brand_id) REFERENCES brand(id) ON UPDATE
 >
 >  CASCADE：当更新或删除某个记录时，会检查该记录是否有关联的外键记录，有的话：
 >
->     ✓ 更新：那么会更新对应的记录；
+> ✓ 更新：那么会更新对应的记录；
 >
->     ✓ 删除：那么关联的记录会被一起删除掉；
+> ✓ 删除：那么关联的记录会被一起删除掉；
 >
 >  SET NULL：当更新或删除某个记录时，会检查该记录是否有关联的外键记录，有的话，将对应的值设置为NULL；
 >

@@ -5,12 +5,31 @@ import type { Express, Request, Response, NextFunction, Errback } from "express"
 import commonMiddleware from "./middlewares/common.middleware.ts";
 import registerRouters from "./routes/index.ts";
 
+import aggregator from "./middlewares/bff-server/middlewares/aggregator.ts";
+import UserService from "./middlewares/bff-server/services/userService.ts";
+import ProductService from "./middlewares/bff-server/services/productService.ts";
+
 import('./plugins/mysql/database.ts');
 
 const app: Express = express();
 
 commonMiddleware(app);
 await registerRouters(app);
+
+app.get('/user/:userId', aggregator.createAggregator({
+  pipelineGroup: 'userDashboard',
+  maxConcurrent: 3,
+  requests: [
+    UserService.getUserProfile(),
+    UserService.getUserOrders(),
+    // {
+    //   name: 'productRecommendations',
+    //   ...(await ProductService.getProductRecommendations())
+    // }
+  ]
+}));
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,12 +1,16 @@
+import type { Express } from "express";
+
 import path from "path";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
+import { pipelineMiddleware } from "./bff-server/middlewares/pipeline.ts";
+
 
 const baseUrl = process.cwd()
 
-export default function (app) {
+export default function (app: Express) {
     app.use(cors({
         "origin": "*", //true 设置为 req.origin.url
         "methods": "GET,HEAD,PUT,PATCH,POST,DELETE", //容许跨域的请求方式
@@ -25,4 +29,7 @@ export default function (app) {
     app.use(express.urlencoded({ extended: false }));
     app.use(cookieParser());
     app.use(express.static(path.join(baseUrl, 'public/picture')));
+
+    // bff server   中间件
+     app.use(pipelineMiddleware);
 }
