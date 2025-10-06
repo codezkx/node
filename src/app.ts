@@ -22,14 +22,10 @@ app.get('/user/:userId', aggregator.createAggregator({
   requests: [
     UserService.getUserProfile(),
     UserService.getUserOrders(),
-    // {
-    //   name: 'productRecommendations',
-    //   ...(await ProductService.getProductRecommendations())
-    // }
+    ProductService.getProductDetails(),
+    ProductService.getProductRecommendations(),
   ]
 }));
-
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,16 +1,14 @@
 /**
  * 接口聚合中间件
  * 
- * 
  */
 
 import axios from 'axios';
 import type { NextFunction, Request, Response, } from 'express';
 import type { PipelineResult } from './pipeline';
 
-
 export interface ParamsDictionary {
-    [key: string]: string;
+    [key: string]: any;
 }
 
 export interface ContextOptions {
@@ -28,12 +26,12 @@ type MapParams = {
 }
 
 export interface RequestOptions {
-  name: string,
   service: string,
   endpoint: string,
   method: string,
+  transform?: (data: any, context?: ContextOptions) => any,
   mapParams?: (context: ContextOptions) => MapParams,
-  transform?: (data: any, context?: ContextOptions) => any
+
 }
 
 interface ResponseOptions extends RequestOptions {
@@ -43,7 +41,10 @@ interface ResponseOptions extends RequestOptions {
   [key: string]: any
 }
 
-type RequestFun = (context: ContextOptions) => RequestOptions
+type RequestFun = {
+  name: string,
+  request: (context: ContextOptions) => RequestOptions
+}
 
 type Requests = RequestFun[]
 
@@ -61,7 +62,6 @@ type ServiceOptions = {
 interface Result {
   [key: string]: any
 }
-
 
 /**
  * 聚合服务
@@ -88,20 +88,21 @@ class AgggregatorMiddleware {
           maxConcurrent
         }
         // 添加任务到管道
-        requests.forEach(request =>{
+        requests.forEach(task => {
+          const { name, request } = task
           req.pipeline.addTask(
             pipelineGroup,
-            request.name,
+            name,
             async (context: ContextOptions) => {
               return await this.executeRequest(request(context), context)
             },
             options,
-          )
+          );
         });
 
         // 执行管道
         const results = await req.pipeline.executePipeline<any>(pipelineGroup, context);
-
+        console.log(results, 'results')
         // 构建响应
         const response = this.buildResponse(requests, results, context);
         res.json(response);
@@ -115,8 +116,15 @@ class AgggregatorMiddleware {
     }
   }
 
+  /**
+   * 执行HTTP请求
+   * @param request - 请求配置选项，包含服务名、端点、方法等信息
+   * @param context - 上下文选项，用于参数映射和数据转换
+   * @returns Promise<any> 返回处理后的响应数据
+   */
   async executeRequest(request: RequestOptions, context: ContextOptions) {
     const { service, endpoint, method = 'GET', mapParams, transform } = request;
+    // 根据不同服务获取对应的配置
     const serviceConfig = this.services.get(service);
     if (!serviceConfig) {
       throw new Error(`Service ${service} not found`);
@@ -138,7 +146,7 @@ class AgggregatorMiddleware {
 
     try {
       const response = await axios(config);
-      let data = response.data;
+      let { data } = response.data;
       if (transform) {
         data = transform(data, context);
       }
@@ -175,13 +183,13 @@ const aggregation = new AgggregatorMiddleware();
 
 // 注册示例服务
 aggregation.registerService('userService', {
-  baseURL: 'https://bffserver.free.beeceptor.com',
+  baseURL: 'http://127.0.0.1:4000',
   headers: { 'Authorization': 'Bearer token' }
 });
 
-// aggregation.registerService('productService', {
-//  baseURL: 'https://api.product-service.com',
-//   headers: { 'Authorization': 'Bearer token' }
-// });
+aggregation.registerService('productService', {
+ baseURL: 'http://127.0.0.1:5000',
+  headers: { 'Authorization': 'Bearer token' }
+});
 
 export default aggregation;

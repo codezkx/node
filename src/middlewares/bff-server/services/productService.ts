@@ -1,29 +1,36 @@
+import type { ContextOptions } from "../middlewares/aggregator";
+
 class ProductService {
-  static async getProductDetails(productId: string | number) {
+  static getProductDetails() {
     return {
-      name: 'userProfile',
-      service: 'productService',
-      endpoint: `/products/${productId}`,
-      method: 'GET',
-      transform: (data: any) => ({
-        productId: data.id,
-        title: data.title,
-        price: data.price,
-        inventory: data.inventory
+      name: 'productDetails',
+      request: (context: ContextOptions) => ({
+        service: 'productService',
+        endpoint: `/products/${context.productId}`,
+        method: 'GET',
+        transform: (data: any) => ({
+          productId: data.id,
+          title: data.title,
+          price: data.price,
+          inventory: data.inventory,
+          ...data
+        })
       })
-    };
+    }
   }
 
-  static async getProductRecommendations(userId: string | number) {
+  static getProductRecommendations() {
     return {
-      name: 'userOrders',
-      service: 'productService',
-      endpoint: '/products/recommendations',
-      method: 'GET',
-      mapParams: (context) => ({
-        params: { userId: context.params.userId }
+      name: 'productRecommendations',
+      request: () => ({
+        service: 'productService',
+        endpoint: '/products/recommendations',
+        method: 'GET',
+        mapParams: (context: ContextOptions) => ({
+          params: { userId: context.params.userId }
+        })
       })
-    };
+    }
   }
 }
 

@@ -5,7 +5,7 @@
  */
 
 import type { Request, Response } from "express";
-import { getPipelineGroup, type Task } from "../utils/concurrent.ts";
+import { getPipelineGroup, type Task, type TaskOptions } from "../utils/concurrent.ts";
 import type { NextFunction } from "express";
 import type { ContextOptions } from "./aggregator.ts";
 
@@ -13,7 +13,7 @@ interface PipelineOptions {
   id: string,
   maxConcurrent: number,
   timeout: number,
-  tasks: Array<Task>,
+  tasks: Map<string, TaskOptions>,
 }
 
 export interface PipelineResult<T = any> {
@@ -50,7 +50,7 @@ class PipelineManager implements PipelineManagerOptions {
       id: groupId,
       maxConcurrent: config?.maxConcurrent || 3,
       timeout: config?.timeout || 30000,
-      tasks: [],
+      tasks: new Map(),
     }
     this.pipelines.set(groupId, pipeline);
     return pipeline
@@ -68,13 +68,15 @@ class PipelineManager implements PipelineManagerOptions {
     if (!this.pipelines.has(groupId)) {
       this.createPipeline(groupId, config);
     }
-
     const pipeline = this.pipelines.get(groupId)!;
-    pipeline.tasks.push({
+    if (pipeline.tasks.has(taskName)) {
+      return false;
+    }
+    pipeline.tasks.set(taskName, {
       name: taskName,
       execute: taskFn,
       dependsOn: [] // 依赖关系
-    })
+    });
   }
 
   /**
@@ -91,25 +93,28 @@ class PipelineManager implements PipelineManagerOptions {
 
     // 创建管道组
     const concurrentManager = getPipelineGroup(groupId, pipeline.maxConcurrent);
+    const tasks: Task[] = [];
+    pipeline.tasks.forEach(task => {
+      const taskFn = async () => {
+        try {
+          // TODO  这里需要优化：task.execute(context)调用还未完成，但是pipeline.timeout时间到到了，需要取消任务
+          const result = await Promise.race([
+            task.execute(context),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error(`任务 ${task.name} 超时`)), pipeline.timeout)
+            )
+          ]);
 
-    const tasks = pipeline.tasks.map(task => async () => {
-      try {
-        const result: Promise<PipelineResult<T>[]> = await Promise.race([
-          task.execute(context),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error(`任务 ${task.name} 超时`)), pipeline.timeout)
-          )
-        ]);
-
-        // 将结果保存到上下文
-        context[task.name] = result;
-        return result
-      } catch (error: any) {
-        console.error(`[Pipeline ${groupId}] Task ${task.name} failed:`, error.message);
-        throw error;
+          // 将结果保存到上下文
+          context[task.name] = result;
+          return result
+        } catch (error: any) {
+          console.error(`[Pipeline ${groupId}] Task ${task.name} failed:`, error.message);
+          throw error;
+        }
       }
+      tasks.push(taskFn);
     });
-    
     // 执行管道
     return concurrentManager?.executeAll(tasks, groupId);
   }

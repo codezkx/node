@@ -1,17 +1,24 @@
 /**
  * * 并发控制工具文件： 
- * 
- * 
  */
 
 import type { TaskFuntion } from "../middlewares/pipeline.ts"
 
-export type Task = {
+export interface TaskOptions {
   name: string,
   execute: TaskFuntion,
   dependsOn: any[], // 依赖关系
   retries?: number,
   timeout?: number
+}
+
+export type Task= () => Promise<Task>
+
+interface Queue {
+  task: Task,
+  resolve: (value: any) => void,
+  reject: (reason?: any) => void
+
 }
 
 interface ConcurrentManagerOptions {
@@ -23,7 +30,7 @@ interface ConcurrentManagerOptions {
 }
 
 class ConcurrentManager implements ConcurrentManagerOptions {
-  queue: any[]
+  queue: Queue[]
   activeCount: number
   maxConcurrent: number
 
@@ -49,16 +56,14 @@ class ConcurrentManager implements ConcurrentManagerOptions {
    * @returns {Promise<void>} 返回一个空的Promise，表示处理过程的异步操作
    */
   async process() {
-    const queue = this.queue;
     // 队列为空或者正在执行任务数达到最大值
     if (this.activeCount >= this.maxConcurrent || this.queue.length === 0) {
       return;
     }
     this.activeCount++;
-    const {task, resolve, reject} = queue.shift();
+    const {task, resolve, reject} = this.queue.shift()!;
     try {
       const result = await task();
-      console.log(result, "result====")
       resolve(result);
     } catch(err) {
       reject(err);

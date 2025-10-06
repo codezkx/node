@@ -2,27 +2,33 @@ import type { ContextOptions } from "../middlewares/aggregator";
 
 class UserService {
   static getUserProfile() {
-    return (context: ContextOptions) => ({
-      name: 'userProfile', // 添加 name 到配置中
-      service: 'userService',
-      endpoint: `/users/${context.params.userId}`,
-      method: 'GET',
-      transform: (data: any) => ({
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        profile: data.profile
+    return {
+      name: 'userProfile',
+      request: (context: ContextOptions) => ({
+        service: 'userService',
+        endpoint: `/users/${context.params.userId}`,
+        method: 'GET',
+        transform: (data: any) => ({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          profile: data.profile,
+          ...data,
+        })
       })
-    });
+    }
   }
 
   static getUserOrders() {
-    return (context: ContextOptions) => ({
+    return {
       name: 'userOrders',
-      service: 'userService',
-      endpoint: `/users/${context.params.userId}/orders`,
-      method: 'GET'
-    });
+      request: (context: ContextOptions) => ({
+        name: 'userOrders',
+        service: 'userService',
+        endpoint: `/users/${context.params.userId}/orders`,
+        method: 'GET'
+      })
+    }
   }
 }
 
